@@ -106,10 +106,10 @@ namespace RTNet
 
       VertexLayoutDescription[] vertexLayouts = new VertexLayoutDescription[]
       {
-                new VertexLayoutDescription(
-                    new VertexElementDescription("in_position", VertexElementSemantic.Position, VertexElementFormat.Float2),
-                    new VertexElementDescription("in_texCoord", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                    new VertexElementDescription("in_color", VertexElementSemantic.Color, VertexElementFormat.Byte4_Norm))
+        new VertexLayoutDescription(
+            new VertexElementDescription("in_position", VertexElementSemantic.Position, VertexElementFormat.Float2),
+            new VertexElementDescription("in_texCoord", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+            new VertexElementDescription("in_color", VertexElementSemantic.Color, VertexElementFormat.Byte4_Norm))
       };
 
       _layout = factory.CreateResourceLayout(new ResourceLayoutDescription(
@@ -265,7 +265,7 @@ namespace RTNet
           PixelFormat.R8_G8_B8_A8_UNorm,
           TextureUsage.Sampled));
       _fontTexture.Name = "ImGui.NET Font Texture";
-      gd.UpdateTexture(
+      gd.UpdateTexture( 
           _fontTexture,
           pixels,
           (uint)(bytesPerPixel * width * height),
