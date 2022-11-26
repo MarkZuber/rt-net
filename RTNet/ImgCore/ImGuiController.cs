@@ -68,34 +68,55 @@ namespace RTNet.ImgCore
       ImGui.GetIO().BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
       ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
-      CreateDeviceResources(gd, outputDescription);
-      SetKeyMappings();
+      //
+      // create device resources
+      //
 
-      SetPerFrameImGuiData(1f / 60f);
-
-      ImGui.NewFrame();
-      _frameBegun = true;
-    }
-
-    public void WindowResized(int width, int height)
-    {
-      _windowWidth = width;
-      _windowHeight = height;
-    }
-
-    public void DestroyDeviceObjects()
-    {
-      Dispose();
-    }
-
-    public void CreateDeviceResources(GraphicsDevice gd, OutputDescription outputDescription)
-    {
       ResourceFactory factory = gd.ResourceFactory;
       _vertexBuffer = factory.CreateBuffer(new BufferDescription(10000, BufferUsage.VertexBuffer | BufferUsage.Dynamic));
       _vertexBuffer.Name = "ImGui.NET Vertex Buffer";
       _indexBuffer = factory.CreateBuffer(new BufferDescription(2000, BufferUsage.IndexBuffer | BufferUsage.Dynamic));
       _indexBuffer.Name = "ImGui.NET Index Buffer";
-      RecreateFontDeviceTexture(gd);
+
+      //
+      // font device texture
+      //
+
+      ImGuiIOPtr io = ImGui.GetIO();
+      // Build
+      IntPtr pixels;
+      int texWidth, texHeight, bytesPerPixel;
+      io.Fonts.GetTexDataAsRGBA32(out pixels, out texWidth, out texHeight, out bytesPerPixel);
+      // Store our identifier
+      io.Fonts.SetTexID(_fontAtlasID);
+
+      _fontTexture = gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
+          (uint)texWidth,
+          (uint)texHeight,
+          1,
+          1,
+          PixelFormat.R8_G8_B8_A8_UNorm,
+          TextureUsage.Sampled));
+      _fontTexture.Name = "ImGui.NET Font Texture";
+      gd.UpdateTexture(
+          _fontTexture,
+          pixels,
+          (uint)(bytesPerPixel * texWidth * texHeight),
+          0,
+          0,
+          0,
+          (uint)texWidth,
+          (uint)texHeight,
+          1,
+          0,
+          0);
+      _fontTextureView = gd.ResourceFactory.CreateTextureView(_fontTexture);
+
+      io.Fonts.ClearTexData();
+
+      //
+      // create device resources
+      //
 
       _projMatrixBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
       _projMatrixBuffer.Name = "ImGui.NET Projection Buffer";
@@ -135,6 +156,21 @@ namespace RTNet.ImgCore
           gd.PointSampler));
 
       _fontTextureResourceSet = factory.CreateResourceSet(new ResourceSetDescription(_textureLayout, _fontTextureView));
+
+      //
+      // end create device resources
+      //
+
+      SetKeyMappings();
+      SetPerFrameImGuiData(1f / 60f);
+      ImGui.NewFrame();
+      _frameBegun = true;
+    }
+
+    public void WindowResized(int width, int height)
+    {
+      _windowWidth = width;
+      _windowHeight = height;
     }
 
     /// <summary>
@@ -168,7 +204,7 @@ namespace RTNet.ImgCore
     /// </summary>
     public IntPtr GetOrCreateImGuiBinding(ResourceFactory factory, Texture texture)
     {
-      if (!_autoViewsByTexture.TryGetValue(texture, out TextureView textureView))
+      if (!_autoViewsByTexture.TryGetValue(texture, out TextureView? textureView))
       {
         textureView = factory.CreateTextureView(texture);
         _autoViewsByTexture.Add(texture, textureView);
@@ -243,44 +279,6 @@ namespace RTNet.ImgCore
         s.Read(ret, 0, (int)s.Length);
         return ret;
       }
-    }
-
-    /// <summary>
-    /// Recreates the device texture used to render text.
-    /// </summary>
-    public void RecreateFontDeviceTexture(GraphicsDevice gd)
-    {
-      ImGuiIOPtr io = ImGui.GetIO();
-      // Build
-      IntPtr pixels;
-      int width, height, bytesPerPixel;
-      io.Fonts.GetTexDataAsRGBA32(out pixels, out width, out height, out bytesPerPixel);
-      // Store our identifier
-      io.Fonts.SetTexID(_fontAtlasID);
-
-      _fontTexture = gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
-          (uint)width,
-          (uint)height,
-          1,
-          1,
-          PixelFormat.R8_G8_B8_A8_UNorm,
-          TextureUsage.Sampled));
-      _fontTexture.Name = "ImGui.NET Font Texture";
-      gd.UpdateTexture(
-          _fontTexture,
-          pixels,
-          (uint)(bytesPerPixel * width * height),
-          0,
-          0,
-          0,
-          (uint)width,
-          (uint)height,
-          1,
-          0,
-          0);
-      _fontTextureView = gd.ResourceFactory.CreateTextureView(_fontTexture);
-
-      io.Fonts.ClearTexData();
     }
 
     /// <summary>

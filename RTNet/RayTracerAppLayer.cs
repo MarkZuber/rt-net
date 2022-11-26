@@ -11,15 +11,19 @@ namespace RTNet
     private UInt32 _viewportWidth;
     private UInt32 _viewportHeight;
     private double _lastRenderTime;
-    ImGuiController _controller;
     private Renderer _renderer;
     private Camera _camera;
 
+    public RayTracerAppLayer()
+    {
+      _renderer = new Renderer(600, 600);
+      _camera = new Camera(45.0f, 0.1f, 100.0f);
+    }
+
+
     public void Initialize(ImGuiController controller)
     {
-      _controller = controller;
-      _renderer = new Renderer(controller, 600, 600);
-      _camera = new Camera(45.0f, 0.1f, 100.0f);
+      _renderer.Initialize(controller);
     }
 
     public void OnAttach()

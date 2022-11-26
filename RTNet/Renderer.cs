@@ -10,14 +10,18 @@ namespace RTNet
 
     private int[] _imageData;
 
-    private ImageBuffer _finalImageBuffer;
+    private ImageBuffer? _finalImageBuffer;
 
-    public Renderer(ImGuiController controller, UInt32 renderWidth, UInt32 renderHeight)
+    public Renderer(UInt32 renderWidth, UInt32 renderHeight)
     {
       RenderWidth = renderWidth;
       RenderHeight = renderHeight;
       _imageData = new int[renderWidth * renderHeight];
-      _finalImageBuffer = new ImageBuffer(controller, renderWidth, renderHeight);
+    }
+
+    public void Initialize(ImGuiController controller)
+    {
+      _finalImageBuffer = new ImageBuffer(controller, RenderWidth, RenderHeight);
     }
 
     public UInt32 RenderWidth { get; private set; }
@@ -25,6 +29,11 @@ namespace RTNet
 
     public IntPtr GetFinalImagePtr()
     {
+      if (_finalImageBuffer == null)
+      {
+        return IntPtr.Zero;
+      }
+
       _finalImageBuffer.SetData(_imageData);
       return _finalImageBuffer.TextureId;
     }
@@ -40,7 +49,7 @@ namespace RTNet
       RenderHeight = renderHeight;
 
       _imageData = new int[RenderWidth * RenderHeight];
-      _finalImageBuffer.Resize(RenderWidth, RenderHeight);
+      _finalImageBuffer?.Resize(RenderWidth, RenderHeight);
     }
 
     private Vector4 PerPixel(UInt32 x, UInt32 y)
