@@ -1,5 +1,6 @@
 using RTNet.ImgCore;
 using Veldrid;
+using System.Numerics;
 
 namespace RTNet
 {
@@ -42,9 +43,14 @@ namespace RTNet
       _finalImageBuffer.Resize(RenderWidth, RenderHeight);
     }
 
-    private void PerPixel(UInt32 x, UInt32 y)
+    private Vector4 PerPixel(UInt32 x, UInt32 y)
     {
-      _imageData[(y * RenderWidth) + x] = new Color(_random.Next()).RGBA;
+      return new Vector4(Convert.ToSingle(_random.NextDouble()), Convert.ToSingle(_random.NextDouble()), Convert.ToSingle(_random.NextDouble()), 0.0f);
+    }
+
+    private Vector4 PerPixelNA(UInt32 x, UInt32 y)
+    {
+      return new Vector4(0.0f);
     }
 
     public void Render()
@@ -53,7 +59,7 @@ namespace RTNet
       {
         for (UInt32 x = 0; x < RenderWidth; x++)
         {
-          PerPixel(x, y);
+          _imageData[(y * RenderWidth) + x] = Color.ToRGBA(PerPixel(x, y));
         }
       }
     }
