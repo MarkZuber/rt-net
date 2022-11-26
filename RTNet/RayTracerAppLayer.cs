@@ -2,101 +2,22 @@ using System.Numerics;
 using ImGuiNET;
 using RTNet.ImgCore;
 using Veldrid;
+using Veldrid.ImageSharp;
 
 namespace RTNet
 {
-  public class ImageBuffer
-  {
-    private GraphicsDevice _gd;
-    private UInt32 _width;
-    private UInt32 _height;
-    private Texture _texture;
-
-    public ImageBuffer(GraphicsDevice gd, UInt32 width, UInt32 height)
-    {
-      _gd = gd;
-      _width = width;
-      _height = height;
-      _texture = CreateTex(width, height);
-    }
-
-    private Texture CreateTex(UInt32 width, UInt32 height)
-    {
-      return _gd.ResourceFactory.CreateTexture(
-        TextureDescription.Texture2D(
-          width, height, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled
-        )
-      );
-    }
-
-    public void SetData()
-    {
-      int bytesPerPixel = 4;
-
-      var l = new List<int>();
-      var la = l.ToArray<int>();
-
-      var pixdata = new int[10, 10];
-
-      unsafe
-      {
-        fixed (int* pArray = pixdata)
-        {
-          IntPtr pixels = new IntPtr((void*)pArray);
-
-          _gd.UpdateTexture(
-              _texture,
-              pixels,
-              (uint)(bytesPerPixel * _width * _height),
-              0,
-              0,
-              0,
-              (uint)_width,
-              (uint)_height,
-              1,
-              0,
-              0);
-        }
-      }
-    }
-
-    public void Resize(UInt32 width, UInt32 height)
-    {
-      if (_width == width && _height == height)
-      {
-        return;
-      }
-      _width = width;
-      _height = height;
-      _texture = CreateTex(_width, _height);
-    }
-  }
-
-  public class GraphicsOps
-  {
-    private GraphicsDevice _gd;
-    public GraphicsOps(GraphicsDevice gd)
-    {
-      _gd = gd;
-    }
-
-    // public Texture CreateTexture(UInt32 width, UInt32 height)
-    // {
-    //   return texture;
-    // }
-  }
-
   public class RayTracerAppLayer : IAppLayer
   {
     private UInt32 _viewportWidth;
     private UInt32 _viewportHeight;
     private double _lastRenderTime;
-    private GraphicsDevice _gd;
+    ImGuiController _controller;
     private Renderer _renderer;
 
-    public void SetGraphicsDevice(GraphicsDevice gd)
+    public void Initialize(ImGuiController controller)
     {
-      _gd = gd;
+      _controller = controller;
+      _renderer = new Renderer(controller, 600, 600);
     }
 
     public void OnAttach()
@@ -114,6 +35,8 @@ namespace RTNet
       // _renderer.OnResize(_viewportWidth, _viewportHeight);
       // _camera.OnResize(_viewportWidth, _viewportHeight);
       // _renderer.Render(_scene, _camera);
+
+      _renderer.Render();
 
       var end = DateTime.UtcNow;
       _lastRenderTime = (end - start).TotalMilliseconds;
@@ -136,12 +59,11 @@ namespace RTNet
       _viewportWidth = (UInt32)ImGui.GetContentRegionAvail().X;
       _viewportHeight = (UInt32)ImGui.GetContentRegionAvail().Y;
 
-      // var image = _renderer.GetFinalImage();
-      // ImGui.Image(
-      //   image.getDescriptorSet(),
-      //   new Vector2(image.GetWidth(), image.GetHeight()),
-      //   new Vector2(0, 1), new Vector2(1, 0));
-
+      var finalImgPtr = _renderer.GetFinalImagePtr();
+      if (finalImgPtr != IntPtr.Zero)
+      {
+        ImGui.Image(finalImgPtr, new Vector2(_renderer.RenderWidth * 2), new Vector2(_renderer.RenderHeight * 2));
+      }
 
       ImGui.End();
       // ImGui.PopStyleVar();

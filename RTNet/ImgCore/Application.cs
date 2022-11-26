@@ -31,7 +31,6 @@ namespace RTNet.ImgCore
 
     public void AddAppLayer(IAppLayer appLayer)
     {
-      appLayer.SetGraphicsDevice(_gd);
       _appLayers.Add(appLayer);
     }
 
@@ -52,6 +51,11 @@ namespace RTNet.ImgCore
       _cl = _gd.ResourceFactory.CreateCommandList();
       _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
       Random random = new Random();
+
+      foreach (var appLayer in _appLayers)
+      {
+        appLayer.Initialize(_controller);
+      }
 
       // Main application loop
       while (_window.Exists)

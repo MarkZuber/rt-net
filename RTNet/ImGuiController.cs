@@ -15,7 +15,6 @@ namespace RTNet
   /// </summary>
   public class ImGuiController : IDisposable
   {
-    private GraphicsDevice _gd;
     private bool _frameBegun;
 
     // Veldrid objects
@@ -51,12 +50,14 @@ namespace RTNet
     private readonly List<IDisposable> _ownedResources = new List<IDisposable>();
     private int _lastAssignedID = 100;
 
+    public GraphicsDevice Graphics { get; private set; }
+
     /// <summary>
     /// Constructs a new ImGuiController.
     /// </summary>
     public ImGuiController(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
     {
-      _gd = gd;
+      Graphics = gd;
       _windowWidth = width;
       _windowHeight = height;
 
@@ -88,7 +89,6 @@ namespace RTNet
 
     public void CreateDeviceResources(GraphicsDevice gd, OutputDescription outputDescription)
     {
-      _gd = gd;
       ResourceFactory factory = gd.ResourceFactory;
       _vertexBuffer = factory.CreateBuffer(new BufferDescription(10000, BufferUsage.VertexBuffer | BufferUsage.Dynamic));
       _vertexBuffer.Name = "ImGui.NET Vertex Buffer";
@@ -265,7 +265,7 @@ namespace RTNet
           PixelFormat.R8_G8_B8_A8_UNorm,
           TextureUsage.Sampled));
       _fontTexture.Name = "ImGui.NET Font Texture";
-      gd.UpdateTexture( 
+      gd.UpdateTexture(
           _fontTexture,
           pixels,
           (uint)(bytesPerPixel * width * height),
@@ -479,7 +479,7 @@ namespace RTNet
           -1.0f,
           1.0f);
 
-      _gd.UpdateBuffer(_projMatrixBuffer, 0, ref mvp);
+      Graphics.UpdateBuffer(_projMatrixBuffer, 0, ref mvp);
 
       cl.SetVertexBuffer(0, _vertexBuffer);
       cl.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);

@@ -9,10 +9,18 @@ namespace RTNet
     {
       var spec = new ApplicationSpec { Name = "Foo" };
 
-      using (var application = new Application(spec))
+      try
       {
-        application.AddAppLayer(new RayTracerAppLayer());
-        application.Run();
+
+        using (var application = new Application(spec))
+        {
+          application.AddAppLayer(new RayTracerAppLayer());
+          application.Run();
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.ToString());
       }
     }
   }

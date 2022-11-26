@@ -4,7 +4,7 @@ namespace RTNet.ImgCore
 {
   public interface IAppLayer
   {
-    void SetGraphicsDevice(GraphicsDevice gd);
+    void Initialize(ImGuiController controller);
 
     void OnAttach();
     void OnDetach();
