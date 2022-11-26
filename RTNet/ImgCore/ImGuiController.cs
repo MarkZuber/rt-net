@@ -7,7 +7,7 @@ using Veldrid;
 using System.Runtime.CompilerServices;
 using ImGuiNET;
 
-namespace RTNet
+namespace RTNet.ImgCore
 {
   /// <summary>
   /// A modified version of Veldrid.ImGui's ImGuiRenderer.
@@ -66,6 +66,7 @@ namespace RTNet
       var fonts = ImGui.GetIO().Fonts;
       ImGui.GetIO().Fonts.AddFontDefault();
       ImGui.GetIO().BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
+      ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
       CreateDeviceResources(gd, outputDescription);
       SetKeyMappings();

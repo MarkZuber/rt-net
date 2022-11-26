@@ -1,3 +1,4 @@
+using RTNet.ImgCore;
 using Veldrid;
 
 namespace RTNet
@@ -38,6 +39,7 @@ namespace RTNet
       RenderHeight = renderHeight;
 
       _imageData = new int[RenderWidth * RenderHeight];
+      _finalImageBuffer.Resize(RenderWidth, RenderHeight);
     }
 
     private void PerPixel(UInt32 x, UInt32 y)

@@ -59,10 +59,12 @@ namespace RTNet
       _viewportWidth = (UInt32)ImGui.GetContentRegionAvail().X;
       _viewportHeight = (UInt32)ImGui.GetContentRegionAvail().Y;
 
+      _renderer.Resize(_viewportWidth, _viewportHeight);
+
       var finalImgPtr = _renderer.GetFinalImagePtr();
       if (finalImgPtr != IntPtr.Zero)
       {
-        ImGui.Image(finalImgPtr, new Vector2(_renderer.RenderWidth * 2), new Vector2(_renderer.RenderHeight * 2));
+        ImGui.Image(finalImgPtr, new Vector2(_renderer.RenderWidth, _renderer.RenderHeight));
       }
 
       ImGui.End();

@@ -1,6 +1,6 @@
 using Veldrid;
 
-namespace RTNet
+namespace RTNet.ImgCore
 {
   public class ImageBuffer
   {

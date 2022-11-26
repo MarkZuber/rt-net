@@ -1,4 +1,4 @@
-namespace RTNet
+namespace RTNet.ImgCore
 {
   public struct Color
   {
