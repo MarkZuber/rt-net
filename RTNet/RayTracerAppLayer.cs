@@ -32,9 +32,8 @@ namespace RTNet
     {
       var start = DateTime.UtcNow;
 
-      // _renderer.OnResize(_viewportWidth, _viewportHeight);
+      _renderer.Resize(_viewportWidth, _viewportHeight);
       // _camera.OnResize(_viewportWidth, _viewportHeight);
-      // _renderer.Render(_scene, _camera);
 
       _renderer.Render();
 
@@ -59,8 +58,6 @@ namespace RTNet
       _viewportWidth = (UInt32)ImGui.GetContentRegionAvail().X;
       _viewportHeight = (UInt32)ImGui.GetContentRegionAvail().Y;
 
-      _renderer.Resize(_viewportWidth, _viewportHeight);
-
       var finalImgPtr = _renderer.GetFinalImagePtr();
       if (finalImgPtr != IntPtr.Zero)
       {
@@ -68,9 +65,9 @@ namespace RTNet
       }
 
       ImGui.End();
+      // Not sure why this crashes the app...
       // ImGui.PopStyleVar();
 
-      // TODO: do we want/need this here since we have the "Render" button above?
       Render();
 
       float framerate = ImGui.GetIO().Framerate;
