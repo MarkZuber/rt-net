@@ -1,5 +1,6 @@
 ﻿
 using RTNet.ImgCore;
+using RTNet.Maze;
 
 namespace RTNet
 {
@@ -10,8 +11,10 @@ namespace RTNet
       try
       {
         var application = new Application(new ApplicationSpec { Name = "RT.NET", Width = 1700, Height = 1200 });
-        application.AddAppLayer(new RayTracerAppLayer());
-        application.Run();
+        var appInfo = new AppInfo();
+        // application.AddAppLayer(new RayTracerAppLayer(appInfo));
+        application.AddAppLayer(new MazeAppLayer(appInfo));
+        application.Run(appInfo);
       }
       catch (Exception ex)
       {

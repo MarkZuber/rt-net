@@ -24,7 +24,7 @@ namespace RTNet.ImgCore
       _appLayers.Add(appLayer);
     }
 
-    public void Run()
+    public void Run(AppInfo appInfo)
     {
       Sdl2Window window;
       GraphicsDevice gd;
@@ -49,11 +49,7 @@ namespace RTNet.ImgCore
             controller.WindowResized(window.Width, window.Height);
           };
 
-
-        foreach (var appLayer in _appLayers)
-        {
-          appLayer.Initialize(controller);
-        }
+        appInfo.Initialize(controller);
 
         // Main application loop
         while (window.Exists)
@@ -64,6 +60,7 @@ namespace RTNet.ImgCore
 
           foreach (var appLayer in _appLayers)
           {
+            appLayer.OnUpdate(0.1f); // todo: this 0.1f value is blatantly wrong
             appLayer.OnUIRender();
           }
 

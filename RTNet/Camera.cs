@@ -19,7 +19,7 @@ namespace RTNet
     private Matrix4x4 _inverseProjection = new Matrix4x4(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
     private Matrix4x4 _inverseView = new Matrix4x4(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 
-    private List<Vector3> _rayDirections = new List<Vector3>();
+    private Vector3[] _rayDirections = new Vector3[1];
     private UInt32 _viewportWidth = 0;
     private UInt32 _viewportHeight = 0;
 
@@ -33,6 +33,9 @@ namespace RTNet
       _forwardDirection = new Vector3(0, 0, -1);
       _position = new Vector3(0, 0, 6);
     }
+
+    public Vector3 Position => _position;
+    public Vector3[] RayDirections => _rayDirections;
 
     public void OnUpdate(float ts)
     {
@@ -127,7 +130,11 @@ namespace RTNet
 
     private void RecalculateProjection()
     {
-      _projection = Matrix4x4.CreatePerspectiveFieldOfView(_verticalFOV, (float)_viewportWidth / (float)_viewportHeight, _nearClip, _farClip);
+      _projection = Matrix4x4.CreatePerspectiveFieldOfView(
+        (_verticalFOV * Convert.ToSingle(Math.PI)) / 180.0f,
+        (float)_viewportWidth / (float)_viewportHeight,
+        _nearClip,
+        _farClip);
       Matrix4x4.Invert(_projection, out _inverseProjection);
     }
 
@@ -139,7 +146,7 @@ namespace RTNet
 
     private void RecalculateRayDirections()
     {
-      _rayDirections = new List<Vector3>((int)(_viewportWidth * _viewportHeight));
+      _rayDirections = new Vector3[(int)(_viewportWidth * _viewportHeight)];
 
       for (UInt32 y = 0; y < _viewportHeight; y++)
       {
@@ -151,9 +158,9 @@ namespace RTNet
           coord = coord * 2.0f;
           coord = new Vector2(coord.X - 1.0f, coord.Y - 1.0f);
 
-          var target = Vector4.Transform(new Vector4(coord.X, coord.Y, 1, 1), _inverseProjection);
+          var target = Vector4.Transform(new Vector4(coord.X, coord.Y, 1.0f, 1.0f), _inverseProjection);
 
-          var partialWorldSpace = Vector4.Transform(new Vector4(Vector3.Normalize(new Vector3(target.X, target.Y, target.Z) / target.W), 0), _inverseView);
+          var partialWorldSpace = Vector4.Transform(new Vector4(Vector3.Normalize(new Vector3(target.X, target.Y, target.Z) / target.W), 0.0f), _inverseView);
           var rayDirection = new Vector3(partialWorldSpace.X, partialWorldSpace.Y, partialWorldSpace.Z);  // world space
           _rayDirections[(int)(x + y * _viewportWidth)] = rayDirection;
         }

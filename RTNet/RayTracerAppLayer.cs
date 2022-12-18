@@ -13,17 +13,22 @@ namespace RTNet
     private double _lastRenderTime;
     private Renderer _renderer;
     private Camera _camera;
+    private Scene _scene;
 
-    public RayTracerAppLayer()
+    public RayTracerAppLayer(IAppInfo appInfo)
     {
-      _renderer = new Renderer(600, 600);
+      _renderer = new Renderer(appInfo, 600, 600);
       _camera = new Camera(45.0f, 0.1f, 100.0f);
-    }
+      _scene = new Scene();
 
+      var pinkSphere = new Material { Albedo = new Vector3(1.0f, 1.0f, 1.0f), Roughness = 0.0f };
+      _scene.Materials.Add(pinkSphere);
 
-    public void Initialize(ImGuiController controller)
-    {
-      _renderer.Initialize(controller);
+      var blueSphere = new Material { Albedo = new Vector3(0.2f, 0.3f, 1.0f), Roughness = 0.1f };
+      _scene.Materials.Add(blueSphere);
+
+      _scene.Spheres.Add(new Sphere() { Position = new Vector3(0.0f, 0.0f, 0.0f), Radius = 1.0f, MaterialIndex = 0 });
+      _scene.Spheres.Add(new Sphere() { Position = new Vector3(0.0f, -101.0f, 0.0f), Radius = 100.0f, MaterialIndex = 1 });
     }
 
     public void OnAttach()
@@ -39,9 +44,8 @@ namespace RTNet
       var start = DateTime.UtcNow;
 
       _renderer.Resize(_viewportWidth, _viewportHeight);
-      // _camera.OnResize(_viewportWidth, _viewportHeight);
-
-      _renderer.Render();
+      _camera.OnResize(_viewportWidth, _viewportHeight);
+      _renderer.Render(_camera, _scene);
 
       var end = DateTime.UtcNow;
       _lastRenderTime = (end - start).TotalMilliseconds;
@@ -67,7 +71,7 @@ namespace RTNet
       var finalImgPtr = _renderer.GetFinalImagePtr();
       if (finalImgPtr != IntPtr.Zero)
       {
-        ImGui.Image(finalImgPtr, new Vector2(_renderer.RenderWidth, _renderer.RenderHeight));
+        ImGui.Image(finalImgPtr, new Vector2(_renderer.Width, _renderer.Height));
       }
 
       ImGui.End();
@@ -82,6 +86,7 @@ namespace RTNet
 
     public void OnUpdate(float ts)
     {
+      _camera.OnUpdate(ts);
     }
   }
 }
