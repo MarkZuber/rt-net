@@ -122,7 +122,7 @@ namespace RTNet
             payload.WorldNormal + material.Roughness * RandomVector(-0.5f, 0.5f));
       }
 
-      return new Vector4(color, 0.0f); // todo: should be 1.0f?
+      return Vector4.Clamp(new Vector4(color, 1.0f), new Vector4(0.0f), new Vector4(1.0f));
     }
     private HitPayload TraceRay(Ray ray)
     {

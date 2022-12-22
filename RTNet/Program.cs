@@ -12,8 +12,8 @@ namespace RTNet
       {
         var application = new Application(new ApplicationSpec { Name = "RT.NET", Width = 1700, Height = 1200 });
         var appInfo = new AppInfo();
-        // application.AddAppLayer(new RayTracerAppLayer(appInfo));
-        application.AddAppLayer(new MazeAppLayer(appInfo));
+        application.AddAppLayer(new RayTracerAppLayer(appInfo));
+        // application.AddAppLayer(new MazeAppLayer(appInfo));
         application.Run(appInfo);
       }
       catch (Exception ex)

@@ -120,6 +120,7 @@ namespace RTNet
       _viewportWidth = width;
       _viewportHeight = height;
       RecalculateView();
+      RecalculateProjection();
       RecalculateRayDirections();
     }
 
