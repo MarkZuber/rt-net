@@ -86,7 +86,10 @@ namespace RTNet
 
     public void OnUpdate(float ts)
     {
-      _camera.OnUpdate(ts);
+      if (_camera.OnUpdate(ts))
+      {
+        _renderer.ResetFrameIndex();
+      }
     }
   }
 }

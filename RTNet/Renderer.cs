@@ -52,6 +52,9 @@ namespace RTNet
     private ImageBuffer _finalImageBuffer;
     private Camera _camera;
     private Scene _scene;
+    private int _frameIndex = 1;
+    private bool _shouldAccumulate = true;
+    private Vector3[] _accumulationData = new Vector3[0];
 
     private Vector3 RandomVector(float min, float max)
     {
@@ -75,9 +78,21 @@ namespace RTNet
       return _finalImageBuffer.CaptureImageBufferPointer();
     }
 
+    public void ResetFrameIndex()
+    {
+      _frameIndex = 1;
+      _accumulationData = new Vector3[Width * Height];
+    }
+
     public void Resize(UInt32 width, UInt32 height)
     {
+      if (Width == width && Height == height)
+      {
+        return;
+      }
+
       _finalImageBuffer.Resize(width, height);
+      ResetFrameIndex();
     }
 
     private Vector4 PerPixelRandom(UInt32 x, UInt32 y)
@@ -85,7 +100,7 @@ namespace RTNet
       return new Vector4(Convert.ToSingle(_random.NextDouble()), Convert.ToSingle(_random.NextDouble()), Convert.ToSingle(_random.NextDouble()), 0.0f);
     }
 
-    private Vector4 PerPixel(UInt32 x, UInt32 y)
+    private Vector3 PerPixel(UInt32 x, UInt32 y)
     {
       Ray ray = new Ray();
       ray.Origin = _camera.Position;
@@ -122,8 +137,9 @@ namespace RTNet
             payload.WorldNormal + material.Roughness * RandomVector(-0.5f, 0.5f));
       }
 
-      return Vector4.Clamp(new Vector4(color, 1.0f), new Vector4(0.0f), new Vector4(1.0f));
+      return color;
     }
+
     private HitPayload TraceRay(Ray ray)
     {
       // (bx^2 + by^2)t^2 + (2(axbx + ayby))t + (ax^2 + ay^2 - r^2) = 0
@@ -198,12 +214,32 @@ namespace RTNet
     {
       _camera = camera;
       _scene = scene;
+
+      if (_frameIndex == 1)
+      {
+        Array.Clear(_accumulationData);
+      }
+
       for (UInt32 y = 0; y < Height; y++)
       {
         for (UInt32 x = 0; x < Width; x++)
         {
-          _finalImageBuffer.SetPixel(x, y, PerPixel(x, y));
+          var color = PerPixel(x, y);
+          _accumulationData[y * Width + x] += color;
+          var accumulatedColor = _accumulationData[y * Width + x];
+          accumulatedColor /= (float)_frameIndex;
+          accumulatedColor = Vector3.Clamp(accumulatedColor, new Vector3(0.0f), new Vector3(1.0f));
+          _finalImageBuffer.SetPixel(x, y, accumulatedColor);
         }
+      }
+
+      if (_shouldAccumulate)
+      {
+        _frameIndex++;
+      }
+      else
+      {
+        _frameIndex = 1;
       }
     }
   }

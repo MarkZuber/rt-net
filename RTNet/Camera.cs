@@ -14,10 +14,10 @@ namespace RTNet
     private Vector3 _position = new Vector3(0.0f, 0.0f, 0.0f);
     private Vector2 _lastMousePosition = new Vector2(0.0f, 0.0f);
 
-    private Matrix4x4 _projection = new Matrix4x4(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-    private Matrix4x4 _view = new Matrix4x4(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-    private Matrix4x4 _inverseProjection = new Matrix4x4(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-    private Matrix4x4 _inverseView = new Matrix4x4(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+    private Matrix4x4 _projection = Matrix4x4.Identity;
+    private Matrix4x4 _view = Matrix4x4.Identity;
+    private Matrix4x4 _inverseProjection = Matrix4x4.Identity;
+    private Matrix4x4 _inverseView = Matrix4x4.Identity;
 
     private Vector3[] _rayDirections = new Vector3[1];
     private UInt32 _viewportWidth = 0;
@@ -37,7 +37,7 @@ namespace RTNet
     public Vector3 Position => _position;
     public Vector3[] RayDirections => _rayDirections;
 
-    public void OnUpdate(float ts)
+    public bool OnUpdate(float ts)
     {
       var io = ImGui.GetIO();
       var mousePos = io.MousePos;
@@ -48,7 +48,7 @@ namespace RTNet
       if (!io.MouseDown[1])
       {
         // 
-        return;
+        return false;
       }
 
       var moved = false;
@@ -107,7 +107,9 @@ namespace RTNet
       {
         RecalculateView();
         RecalculateRayDirections();
+        return true;
       }
+      return false;
     }
 
     public void OnResize(UInt32 width, UInt32 height)
@@ -119,7 +121,6 @@ namespace RTNet
 
       _viewportWidth = width;
       _viewportHeight = height;
-      RecalculateView();
       RecalculateProjection();
       RecalculateRayDirections();
     }
@@ -161,7 +162,11 @@ namespace RTNet
 
           var target = Vector4.Transform(new Vector4(coord.X, coord.Y, 1.0f, 1.0f), _inverseProjection);
 
-          var partialWorldSpace = Vector4.Transform(new Vector4(Vector3.Normalize(new Vector3(target.X, target.Y, target.Z) / target.W), 0.0f), _inverseView);
+          var partialWorldSpace = Vector4.Transform(
+            new Vector4(
+              Vector3.Normalize(new Vector3(target.X, target.Y, target.Z) / target.W),
+              0.0f),
+            _inverseView);
           var rayDirection = new Vector3(partialWorldSpace.X, partialWorldSpace.Y, partialWorldSpace.Z);  // world space
           _rayDirections[(int)(x + y * _viewportWidth)] = rayDirection;
         }
