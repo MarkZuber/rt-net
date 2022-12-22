@@ -4,42 +4,78 @@ namespace RTNet.ImgCore
 {
   public struct Color
   {
+    private float _r;
+    private float _g;
+    private float _b;
+    private float _a;
+
     public Color(byte r, byte g, byte b)
     {
-      RGBA = ((int)r << 24) | ((int)g << 16) | ((int)b << 8) | 0x00;
+      _r = (float)r / 255.0f;
+      _g = (float)g / 255.0f;
+      _b = (float)b / 255.0f;
+      _a = 1.0f;
     }
+
     public Color(byte r, byte g, byte b, byte a)
     {
-      RGBA = ((int)r << 24) | ((int)g << 16) | ((int)b << 8) | (int)a;
+      _r = (float)r / 255.0f;
+      _g = (float)g / 255.0f;
+      _b = (float)b / 255.0f;
+      _a = (float)a / 255.0f; ;
     }
 
-    public Color(int rgba)
+    public Color(float r, float g, float b)
     {
-      RGBA = (int)((UInt32)rgba & 0xffffff00);
+      _r = r;
+      _g = g;
+      _b = b;
+      _a = 1.0f;
     }
 
-    public static int ToRGBA(Vector4 color)
+    public Color(float allColors)
     {
-      var r = (int)(((float)color.X) * 255.0f);
-      var g = (int)(((float)color.Y) * 255.0f);
-      var b = (int)(((float)color.Z) * 255.0f);
-      var a = (int)(((float)color.W) * 255.0f);
-
-      return r << 24 | g << 16 | b << 8 | a;
+      _r = allColors;
+      _g = allColors;
+      _b = allColors;
+      _a = 1.0f;
     }
 
-    public Color(Vector4 color)
+    public Color(float r, float g, float b, float a)
     {
-      // var clamped = Vector4.Clamp(color, new Vector4(0.0f), new Vector4(1.0f));
-
-      var r = (int)(((float)color.X) * 255.0f);
-      var g = (int)(((float)color.Y) * 255.0f);
-      var b = (int)(((float)color.Z) * 255.0f);
-      var a = (int)(((float)color.W) * 255.0f);
-
-      RGBA = r << 24 | g << 16 | b << 8 | a;
+      _r = r;
+      _g = g;
+      _b = b;
+      _a = a;
     }
 
-    public int RGBA { get; private set; }
+    public UInt32 ToRGBA()
+    {
+      var r = Convert.ToUInt32(_r * 255.0f);
+      var g = Convert.ToUInt32(_g * 255.0f);
+      var b = Convert.ToUInt32(_b * 255.0f);
+      var a = Convert.ToUInt32(_a * 255.0f);
+
+      return (a << 24) | (b << 16) | (g << 8) | r;
+    }
+
+    public void Clamp()
+    {
+      var clamped = Vector4.Clamp(new Vector4(_r, _g, _b, _a), new Vector4(0.0f), new Vector4(1.0f));
+      _r = clamped.X;
+      _g = clamped.Y;
+      _b = clamped.Z;
+      _a = clamped.W;
+    }
+
+    public byte[] ToBytes()
+    {
+      var bytes = new byte[4];
+      bytes[0] = Convert.ToByte(_r * 255.0f);
+      bytes[1] = Convert.ToByte(_g * 255.0f);
+      bytes[2] = Convert.ToByte(_b * 255.0f);
+      bytes[3] = Convert.ToByte(_a * 255.0f);
+      return bytes;
+    }
   }
 }

@@ -94,7 +94,7 @@ namespace RTNet.Maze
       var finalImgPtr = _executor.GetImageBuffer(_viewportWidth, _viewportHeight).CaptureImageBufferPointer();
       if (finalImgPtr != IntPtr.Zero)
       {
-        ImGui.Image(finalImgPtr, new Vector2(_viewportWidth, _viewportHeight), new Vector2(0, 1), new Vector2(1, 0));
+        ImGui.Image(finalImgPtr, new Vector2(_viewportWidth, _viewportHeight));
       }
 
       ImGui.End();

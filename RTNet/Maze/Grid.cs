@@ -154,6 +154,40 @@ namespace MazeNet
       {
         var imageBuffer = new ImageBuffer(_appInfo!, pixelWidth, pixelHeight);
 
+        // for (UInt32 y = 0; y < 255; y++)
+        // {
+        //   for (UInt32 x = 0; x < 255; x++)
+        //   {
+        //     imageBuffer.SetPixel(x, y, new Vector4(
+        //       ((float)(255.0 - (float)y)) / 255.0f,
+        //       ((float)y / 255.0f) / 255.0f,
+        //       ((float)(255.0f - (float)x)) / 255.0f,
+        //       0.9f));
+        //   }
+        // }
+
+        // for (UInt32 y = 0; y < 255; y++)
+        // {
+        //   for (UInt32 x = 400; x < 655; x++)
+        //   {
+        //     imageBuffer.SetPixel(x, y, new Vector4(
+        //       ((float)(255.0 - (float)y)) / 255.0f,
+        //       ((float)y / 255.0f) / 255.0f,
+        //       ((float)(255.0f - (float)(x - 400))) / 255.0f,
+        //       0.2f));
+        //   }
+        // }
+
+        for (UInt32 y = 0; y < 255; y++)
+        {
+          for (UInt32 x = 0; x < 255; x++)
+          {
+            imageBuffer.SetPixel(x, y, new Vector3((float)y / 255.0f, 0.0f, 0.0f));
+            imageBuffer.SetPixel(x + 300, y, new Vector3(0.0f, (float)y / 255.0f, 0.0f));
+            imageBuffer.SetPixel(x + 600, y, new Vector3(0.0f, 0.0f, (float)y / 255.0f));
+          }
+        }
+
         UInt32 maxCellSizeWidth = Convert.ToUInt32(pixelWidth / Columns);
         UInt32 maxCellSizeHeight = Convert.ToUInt32(pixelHeight / Rows);
 
@@ -169,13 +203,12 @@ namespace MazeNet
         UInt32 horizBorder = (pixelWidth - gridPixelWidth) / 2;
         UInt32 vertBorder = (pixelHeight - gridPixelHeight) / 2;
 
-        var backColor = new Vector4(0, 255, 0, 0);
-        var foreColor = new Vector4(255, 0, 0, 0);
+        var foreColor = new Vector3(1.0f, 0, 0);
 
-        using (var l = new LogTimer("Fill buffer"))
-        {
-          imageBuffer.Fill(backColor);
-        }
+        // using (var l = new LogTimer("Fill buffer"))
+        // {
+        //   imageBuffer.Fill(backColor);
+        // }
         using (var l = new LogTimer("GetCells"))
         {
           foreach (var cell in GetCells())
