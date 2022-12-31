@@ -3,19 +3,17 @@ using Veldrid;
 
 namespace RTNet.ImgCore
 {
-  public class ImageBuffer // : IDisposable
+  public class ImageBuffer : IPixelBuffer // : IDisposable
   {
-    private IAppInfo _appInfo;
     private Texture? _texture;
     private Texture? _stagingTexture;
     private IntPtr _textureId;
     private byte[] _imageData;
 
-    public ImageBuffer(IAppInfo appInfo, UInt32 width, UInt32 height)
+    public ImageBuffer(UInt32 width, UInt32 height)
     {
       Width = width;
       Height = height;
-      _appInfo = appInfo;
       _imageData = new byte[width * height * PixelFormatSize];
     }
 
@@ -25,39 +23,45 @@ namespace RTNet.ImgCore
     public UInt32 Width { get; private set; }
     public UInt32 Height { get; private set; }
 
+    public bool IsYUp => throw new NotImplementedException();
+
     unsafe public IntPtr CaptureImageBufferPointer()
     {
       if (_textureId == IntPtr.Zero)
       {
         Allocate();
       }
+
+      var controller = Application.GetController();
       if (_stagingTexture == null)
       {
-        _stagingTexture = _appInfo.GetController().Graphics.ResourceFactory.CreateTexture(
+        _stagingTexture = controller.Graphics.ResourceFactory.CreateTexture(
           TextureDescription.Texture2D(Width, Height, 1, 1, Format, TextureUsage.Staging));
       }
 
       fixed (byte* texDataPtr = &_imageData[0])
       {
-        _appInfo.GetController().Graphics.UpdateTexture(_stagingTexture, (IntPtr)texDataPtr, Width * Height * PixelFormatSize, 0, 0, 0, Width, Height, 1, 0, 0);
+        controller.Graphics.UpdateTexture(_stagingTexture, (IntPtr)texDataPtr, Width * Height * PixelFormatSize, 0, 0, 0, Width, Height, 1, 0, 0);
       }
 
-      CommandList cl = _appInfo.GetController().Graphics.ResourceFactory.CreateCommandList();
+      CommandList cl = controller.Graphics.ResourceFactory.CreateCommandList();
       cl.Begin();
       cl.CopyTexture(_stagingTexture, _texture);
       cl.End();
-      _appInfo.GetController().Graphics.SubmitCommands(cl);
+      controller.Graphics.SubmitCommands(cl);
 
       return _textureId;
     }
 
     public void SetPixel(UInt32 x, UInt32 y, Vector4 color)
     {
-      UInt32 offset = y * Width * PixelFormatSize + x * PixelFormatSize;
-      _imageData[offset] = Convert.ToByte(((float)color.X) * 255.0f); ;
-      _imageData[offset + 1] = Convert.ToByte(((float)color.Y) * 255.0f); ;
-      _imageData[offset + 2] = Convert.ToByte(((float)color.Z) * 255.0f); ;
-      _imageData[offset + 3] = Convert.ToByte(((float)color.W) * 255.0f); ;
+      uint actualY = Height - 1 - y;
+
+      UInt32 offset = actualY * Width * PixelFormatSize + x * PixelFormatSize;
+      _imageData[offset] = Convert.ToByte(Math.Clamp(((float)color.X), 0.0, 1.0) * 255.0f);
+      _imageData[offset + 1] = Convert.ToByte(Math.Clamp(((float)color.Y), 0.0, 1.0) * 255.0f);
+      _imageData[offset + 2] = Convert.ToByte(Math.Clamp(((float)color.Z), 0.0, 1.0) * 255.0f);
+      _imageData[offset + 3] = Convert.ToByte(Math.Clamp(((float)color.W), 0.0, 1.0) * 255.0f);
     }
 
     public void SetPixel(UInt32 x, UInt32 y, Vector3 color)
@@ -65,6 +69,32 @@ namespace RTNet.ImgCore
       SetPixel(x, y, new Vector4(color.X, color.Y, color.Z, 1.0f));
     }
 
+    public void SetPixel(uint x, uint y, byte r, byte g, byte b)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void SetPixelRowColors(uint y, IEnumerable<Vector4> rowPixels)
+    {
+      uint x = 0;
+      foreach (var color in rowPixels)
+      {
+        SetPixel(x, y, color);
+        x++;
+      }
+    }
+
+
+    public Vector4 GetPixel(UInt32 x, UInt32 y)
+    {
+      uint actualY = Height - 1 - y;
+      UInt32 offset = actualY * Width * PixelFormatSize + x * PixelFormatSize;
+      float r = (float)_imageData[offset] / 255.0f;
+      float g = (float)_imageData[offset + 1] / 255.0f;
+      float b = (float)_imageData[offset + 2] / 255.0f;
+      float a = (float)_imageData[offset + 3] / 255.0f;
+      return new Vector4(r, g, b, a);
+    }
 
     public void Fill(byte val)
     {
@@ -131,7 +161,7 @@ namespace RTNet.ImgCore
 
     private void Allocate()
     {
-      var controller = _appInfo.GetController();
+      var controller = Application.GetController();
       _texture = controller.Graphics.ResourceFactory.CreateTexture(
         TextureDescription.Texture2D(Width, Height, 1, 1, Format, TextureUsage.Sampled, 0));
       _textureId = controller.GetOrCreateImGuiBinding(controller.Graphics.ResourceFactory, _texture);
@@ -165,6 +195,12 @@ namespace RTNet.ImgCore
       _imageData = new byte[Width * Height * PixelFormatSize];
       Release();
       Allocate();
+    }
+
+
+    public void SaveAsFile(string outputFilePath)
+    {
+      throw new NotImplementedException();
     }
   }
 }

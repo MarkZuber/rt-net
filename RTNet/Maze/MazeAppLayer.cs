@@ -21,11 +21,11 @@ namespace RTNet.Maze
     private GridExecutor _executor;
 
 
-    public MazeAppLayer(IAppInfo appInfo)
+    public MazeAppLayer()
     {
       int mazeRows = 10;
       int mazeColumns = 10;
-      var grid = Grid.CreateGrid<Grid>(appInfo, mazeRows, mazeColumns);
+      var grid = Grid.CreateGrid<Grid>(mazeRows, mazeColumns);
       _executor = new CompoundGridExecutor(grid,
           new List<GridExecutor>() { new MazeNet.Algorithms.BinaryTree(grid), new MazeNet.Algorithms.Sidewinder(grid) });
       _enum = _executor.ExecuteStep().GetEnumerator();

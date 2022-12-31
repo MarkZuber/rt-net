@@ -9,11 +9,9 @@ namespace MazeNet
     private Random rand = new Random();
     private List<List<Cell>> _cells = new List<List<Cell>>();
     private Distances? _distances;
-    private IAppInfo? _appInfo;
 
-    protected void Initialize(IAppInfo appInfo, int rows, int columns)
+    protected void Initialize(int rows, int columns)
     {
-      _appInfo = appInfo;
       Rows = rows;
       Columns = columns;
       PrepareGrid();
@@ -46,10 +44,10 @@ namespace MazeNet
       }
     }
 
-    public static Grid CreateGrid<T>(IAppInfo appInfo, int rows, int columns) where T : Grid, new()
+    public static Grid CreateGrid<T>(int rows, int columns) where T : Grid, new()
     {
       Grid g = new T();
-      g.Initialize(appInfo, rows, columns);
+      g.Initialize(rows, columns);
       return g;
     }
 
@@ -152,7 +150,7 @@ namespace MazeNet
     {
       using (var _ = new LogTimer("GetTexture()"))
       {
-        var imageBuffer = new ImageBuffer(_appInfo!, pixelWidth, pixelHeight);
+        var imageBuffer = new ImageBuffer(pixelWidth, pixelHeight);
 
         // for (UInt32 y = 0; y < 255; y++)
         // {

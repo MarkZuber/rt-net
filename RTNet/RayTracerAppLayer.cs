@@ -15,9 +15,9 @@ namespace RTNet
     private Camera _camera;
     private Scene _scene;
 
-    public RayTracerAppLayer(IAppInfo appInfo)
+    public RayTracerAppLayer()
     {
-      _renderer = new Renderer(appInfo, 600, 600);
+      _renderer = new Renderer(600, 600);
       _camera = new Camera(45.0f, 0.1f, 100.0f);
       _scene = new Scene();
 

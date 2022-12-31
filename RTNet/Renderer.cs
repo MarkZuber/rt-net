@@ -64,9 +64,9 @@ namespace RTNet
         _random.NextSingle() * (max - min) + min);
     }
 
-    public Renderer(IAppInfo appInfo, UInt32 width, UInt32 height)
+    public Renderer(UInt32 width, UInt32 height)
     {
-      _finalImageBuffer = new ImageBuffer(appInfo, width, height);
+      _finalImageBuffer = new ImageBuffer(width, height);
       _camera = new Camera(0.0f, 0.0f, 0.0f);
     }
 
@@ -225,11 +225,14 @@ namespace RTNet
         for (UInt32 x = 0; x < Width; x++)
         {
           var color = PerPixel(x, y);
-          _accumulationData[y * Width + x] += color;
-          var accumulatedColor = _accumulationData[y * Width + x];
+
+          // Algorithm assumes pixel y to be on the bottom, so let's invert so it shows up properly.
+          var imageY = (Height - 1 - y);
+          _accumulationData[imageY * Width + x] += color;
+          var accumulatedColor = _accumulationData[imageY * Width + x];
           accumulatedColor /= (float)_frameIndex;
           accumulatedColor = Vector3.Clamp(accumulatedColor, new Vector3(0.0f), new Vector3(1.0f));
-          _finalImageBuffer.SetPixel(x, y, accumulatedColor);
+          _finalImageBuffer.SetPixel(x, imageY, accumulatedColor);
         }
       }
 

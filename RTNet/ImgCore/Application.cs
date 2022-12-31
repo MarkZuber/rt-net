@@ -14,9 +14,29 @@ namespace RTNet.ImgCore
 
     private ApplicationSpec _appSpec;
 
+    Sdl2Window _window;
+    CommandList _cl;
+    GraphicsDevice _gd;
+
     public Application(ApplicationSpec appSpec)
     {
       _appSpec = appSpec;
+
+      VeldridStartup.CreateWindowAndGraphicsDevice(
+        new WindowCreateInfo(50, 50, (int)_appSpec.Width, (int)_appSpec.Height, WindowState.Normal, _appSpec.Name),
+        new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
+        out _window,
+        out _gd);
+
+      _cl = _gd.ResourceFactory.CreateCommandList();
+      _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
+      Random random = new Random();
+
+      _window.Resized += () =>
+        {
+          _gd.MainSwapchain.Resize((uint)_window.Width, (uint)_window.Height);
+          _controller.WindowResized(_window.Width, _window.Height);
+        };
     }
 
     public void AddAppLayer(IAppLayer appLayer)
@@ -24,39 +44,22 @@ namespace RTNet.ImgCore
       _appLayers.Add(appLayer);
     }
 
-    public void Run(AppInfo appInfo)
+    private static ImGuiController? _controller;
+    public static ImGuiController GetController()
     {
-      Sdl2Window window;
-      GraphicsDevice gd;
-      CommandList cl;
-      ImGuiController controller;
+      return _controller ?? throw new Exception("Controller Not Initialized");
+    }
 
+    public void Run()
+    {
       try
       {
-        VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, (int)_appSpec.Width, (int)_appSpec.Height, WindowState.Normal, _appSpec.Name),
-            new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
-            out window,
-            out gd);
-
-        cl = gd.ResourceFactory.CreateCommandList();
-        controller = new ImGuiController(gd, gd.MainSwapchain.Framebuffer.OutputDescription, window.Width, window.Height);
-        Random random = new Random();
-
-        window.Resized += () =>
-          {
-            gd.MainSwapchain.Resize((uint)window.Width, (uint)window.Height);
-            controller.WindowResized(window.Width, window.Height);
-          };
-
-        appInfo.Initialize(controller);
-
         // Main application loop
-        while (window.Exists)
+        while (_window.Exists)
         {
-          InputSnapshot snapshot = window.PumpEvents();
-          if (!window.Exists) { break; }
-          controller.Update(1f / 60f, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+          InputSnapshot snapshot = _window.PumpEvents();
+          if (!_window.Exists) { break; }
+          GetController().Update(1f / 60f, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
           foreach (var appLayer in _appLayers)
           {
@@ -64,13 +67,13 @@ namespace RTNet.ImgCore
             appLayer.OnUIRender();
           }
 
-          cl.Begin();
-          cl.SetFramebuffer(gd.MainSwapchain.Framebuffer);
-          cl.ClearColorTarget(0, new RgbaFloat(clearColor.X, clearColor.Y, clearColor.Z, 1f));
-          controller.Render(gd, cl);
-          cl.End();
-          gd.SubmitCommands(cl);
-          gd.SwapBuffers(gd.MainSwapchain);
+          _cl.Begin();
+          _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
+          _cl.ClearColorTarget(0, new RgbaFloat(clearColor.X, clearColor.Y, clearColor.Z, 1f));
+          GetController().Render(_gd, _cl);
+          _cl.End();
+          _gd.SubmitCommands(_cl);
+          _gd.SwapBuffers(_gd.MainSwapchain);
         }
       }
       finally
