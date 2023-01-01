@@ -15,7 +15,7 @@ namespace RTNet
     private double _lastRenderTime;
     private IRenderer _renderer;
     private IScene _scene;
-    private ImageBuffer? _imageBuffer;
+    private PixelBuffer? _pixelBuffer;
 
     private bool _renderStarted;
 
@@ -25,36 +25,28 @@ namespace RTNet
       _scene = new CornellBoxScene();
     }
 
-    public void OnAttach()
-    {
-    }
-
-    public void OnDetach()
-    {
-    }
-
     private void Render()
     {
       var start = DateTime.UtcNow;
 
       int numThreads = Environment.ProcessorCount;
       const int RayTraceDepth = 10;
-      const int NumSamples = 50;
+      const int NumSamples = 10;
 
       var renderConfig = new RenderConfig(numThreads, RayTraceDepth, NumSamples)
       {
         TwoPhase = false
       };
 
-      if (_imageBuffer == null)
+      if (_pixelBuffer == null)
       {
-        _imageBuffer = new ImageBuffer(600, 600);
+        _pixelBuffer = new PixelBuffer(200, 200, true);
       }
 
-      // _renderer.Progress += (_, args) => { Dispatcher.Invoke(() => { RenderProgress.Value = args.PercentComplete; }); };
       Task.Run(() =>
       {
-        var rendererData = _renderer.Render(_imageBuffer!, _scene, renderConfig);
+        var rendererData = _renderer.Render(_pixelBuffer!, _scene, renderConfig);
+        _pixelBuffer.SaveToFileAsPng("/Users/zube/trialrun.png");
       });
       var end = DateTime.UtcNow;
       _lastRenderTime = (end - start).TotalMilliseconds;
@@ -83,10 +75,10 @@ namespace RTNet
       _viewportWidth = (UInt32)ImGui.GetContentRegionAvail().X;
       _viewportHeight = (UInt32)ImGui.GetContentRegionAvail().Y;
 
-      var finalImgPtr = _imageBuffer!.CaptureImageBufferPointer();
+      var finalImgPtr = _pixelBuffer!.CaptureImageBufferPointer();
       if (finalImgPtr != IntPtr.Zero)
       {
-        ImGui.Image(finalImgPtr, new Vector2(_imageBuffer.Width, _imageBuffer.Height));
+        ImGui.Image(finalImgPtr, new Vector2(_pixelBuffer.Width, _pixelBuffer.Height));
       }
 
       ImGui.End();
@@ -99,10 +91,6 @@ namespace RTNet
 
     public void OnUpdate(float ts)
     {
-      //   if (_camera.OnUpdate(ts))
-      //   {
-      //     _renderer.ResetFrameIndex();
-      //   }
     }
   }
 }

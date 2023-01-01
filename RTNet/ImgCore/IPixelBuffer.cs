@@ -9,7 +9,7 @@ using System.Numerics;
 
 namespace RTNet.ImgCore
 {
-  public interface IPixelBuffer
+  public interface IPixelBuffer : IDisposable
   {
     UInt32 Width { get; }
     UInt32 Height { get; }
@@ -29,7 +29,7 @@ namespace RTNet.ImgCore
 
     Vector4 GetPixel(UInt32 x, UInt32 y);
 
-    void SaveAsFile(string outputFilePath);
+    void SaveToFileAsPng(string filePath);
     void SetPixelRowColors(UInt32 y, IEnumerable<Vector4> rowPixels);
   }
 }

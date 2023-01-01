@@ -31,14 +31,6 @@ namespace RTNet
       _scene.Spheres.Add(new Sphere() { Position = new Vector3(0.0f, -101.0f, 0.0f), Radius = 100.0f, MaterialIndex = 1 });
     }
 
-    public void OnAttach()
-    {
-    }
-
-    public void OnDetach()
-    {
-    }
-
     private void Render()
     {
       var start = DateTime.UtcNow;

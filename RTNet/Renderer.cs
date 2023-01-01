@@ -49,7 +49,7 @@ namespace RTNet
   {
     private Random _random = new Random();
 
-    private ImageBuffer _finalImageBuffer;
+    private PixelBuffer _finalImageBuffer;
     private Camera _camera;
     private Scene _scene;
     private int _frameIndex = 1;
@@ -66,7 +66,7 @@ namespace RTNet
 
     public Renderer(UInt32 width, UInt32 height)
     {
-      _finalImageBuffer = new ImageBuffer(width, height);
+      _finalImageBuffer = new PixelBuffer(width, height);
       _camera = new Camera(0.0f, 0.0f, 0.0f);
     }
 
@@ -226,13 +226,11 @@ namespace RTNet
         {
           var color = PerPixel(x, y);
 
-          // Algorithm assumes pixel y to be on the bottom, so let's invert so it shows up properly.
-          var imageY = (Height - 1 - y);
-          _accumulationData[imageY * Width + x] += color;
-          var accumulatedColor = _accumulationData[imageY * Width + x];
+          _accumulationData[y * Width + x] += color;
+          var accumulatedColor = _accumulationData[y * Width + x];
           accumulatedColor /= (float)_frameIndex;
           accumulatedColor = Vector3.Clamp(accumulatedColor, new Vector3(0.0f), new Vector3(1.0f));
-          _finalImageBuffer.SetPixel(x, imageY, accumulatedColor);
+          _finalImageBuffer.SetPixel(x, y, accumulatedColor);
         }
       }
 

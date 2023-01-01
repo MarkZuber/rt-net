@@ -12,9 +12,9 @@ namespace WkndRay.Executors
 {
   public class SimplePatternGenerator : IExecutor
   {
-    public ImageBuffer Execute(uint width, uint height)
+    public PixelBuffer Execute(uint width, uint height)
     {
-      var pixelBuffer = new ImageBuffer(width, height);
+      var pixelBuffer = new PixelBuffer(width, height);
 
       for (uint j = height - 1; j >= 0; j--)
       {

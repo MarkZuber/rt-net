@@ -5,7 +5,7 @@ namespace RTNet.ImgCore
 {
   public static class ImageHelper
   {
-    public static ImageBuffer FromFile(string filePath)
+    public static PixelBuffer FromFile(string filePath)
     {
       using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
       {

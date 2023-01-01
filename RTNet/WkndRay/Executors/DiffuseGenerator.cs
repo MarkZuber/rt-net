@@ -19,9 +19,9 @@ namespace WkndRay.Executors
       _numSamples = numSamples;
     }
 
-    public ImageBuffer Execute(uint width, uint height)
+    public PixelBuffer Execute(uint width, uint height)
     {
-      var pixelBuffer = new ImageBuffer(width, height);
+      var pixelBuffer = new PixelBuffer(width, height);
       var lowerLeftCorner = new Vector3(-2.0f, -1.0f, -1.0f);
       var horizontal = new Vector3(4.0f, 0.0f, 0.0f);
       var vertical = new Vector3(0.0f, 2.0f, 0.0f);

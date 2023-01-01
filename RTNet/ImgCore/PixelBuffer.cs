@@ -1,29 +1,42 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 
 namespace RTNet.ImgCore
 {
-  public class ImageBuffer : IPixelBuffer // : IDisposable
+  public class PixelBuffer : IPixelBuffer
   {
     private Texture? _texture;
     private Texture? _stagingTexture;
     private IntPtr _textureId;
     private byte[] _imageData;
 
-    public ImageBuffer(UInt32 width, UInt32 height)
+    public PixelBuffer(UInt32 width, UInt32 height, bool isYUp = false)
     {
       Width = width;
       Height = height;
+      IsYUp = isYUp;
       _imageData = new byte[width * height * PixelFormatSize];
     }
 
-    private UInt32 PixelFormatSize => 4;
+    private PixelBuffer(UInt32 width, UInt32 height, byte[] imageData)
+    {
+      Width = width;
+      Height = height;
+      IsYUp = false;
+      _imageData = imageData;
+    }
+
+    private static UInt32 PixelFormatSize => 4;
     private PixelFormat Format = PixelFormat.R8_G8_B8_A8_UNorm;
+    private bool disposedValue;
 
     public UInt32 Width { get; private set; }
     public UInt32 Height { get; private set; }
 
-    public bool IsYUp => throw new NotImplementedException();
+    public bool IsYUp { get; private set; }
 
     unsafe public IntPtr CaptureImageBufferPointer()
     {
@@ -53,11 +66,16 @@ namespace RTNet.ImgCore
       return _textureId;
     }
 
+    private UInt32 CalculateOffset(UInt32 x, UInt32 y)
+    {
+      uint actualY = IsYUp ? Height - 1 - y : y;
+      UInt32 offset = actualY * Width * PixelFormatSize + x * PixelFormatSize;
+      return offset;
+    }
+
     public void SetPixel(UInt32 x, UInt32 y, Vector4 color)
     {
-      uint actualY = Height - 1 - y;
-
-      UInt32 offset = actualY * Width * PixelFormatSize + x * PixelFormatSize;
+      UInt32 offset = CalculateOffset(x, y);
       _imageData[offset] = Convert.ToByte(Math.Clamp(((float)color.X), 0.0, 1.0) * 255.0f);
       _imageData[offset + 1] = Convert.ToByte(Math.Clamp(((float)color.Y), 0.0, 1.0) * 255.0f);
       _imageData[offset + 2] = Convert.ToByte(Math.Clamp(((float)color.Z), 0.0, 1.0) * 255.0f);
@@ -84,11 +102,9 @@ namespace RTNet.ImgCore
       }
     }
 
-
     public Vector4 GetPixel(UInt32 x, UInt32 y)
     {
-      uint actualY = Height - 1 - y;
-      UInt32 offset = actualY * Width * PixelFormatSize + x * PixelFormatSize;
+      UInt32 offset = CalculateOffset(x, y);
       float r = (float)_imageData[offset] / 255.0f;
       float g = (float)_imageData[offset + 1] / 255.0f;
       float b = (float)_imageData[offset + 2] / 255.0f;
@@ -165,8 +181,6 @@ namespace RTNet.ImgCore
       _texture = controller.Graphics.ResourceFactory.CreateTexture(
         TextureDescription.Texture2D(Width, Height, 1, 1, Format, TextureUsage.Sampled, 0));
       _textureId = controller.GetOrCreateImGuiBinding(controller.Graphics.ResourceFactory, _texture);
-
-      // textureView?
     }
 
     private void Release()
@@ -197,10 +211,55 @@ namespace RTNet.ImgCore
       Allocate();
     }
 
-
-    public void SaveAsFile(string outputFilePath)
+    public static PixelBuffer FromFile(string filePath)
     {
-      throw new NotImplementedException();
+      Image<Rgba32> image;
+      using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+      {
+        image = Image.Load<Rgba32>(stream);
+      }
+
+      if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixelSpan))
+      {
+        throw new Exception("Unable to get image pixel span");
+      }
+
+      var asRgba = pixelSpan.ToArray();
+      var imageData = new byte[image.Width * image.Height * PixelFormatSize];
+      Buffer.BlockCopy(asRgba, 0, imageData, 0, Convert.ToInt32(image.Width * image.Height * PixelFormatSize));
+
+      return new PixelBuffer(Convert.ToUInt32(image.Width), Convert.ToUInt32(image.Height), imageData);
+    }
+
+    public void SaveToFileAsPng(string filePath)
+    {
+      var image = Image.LoadPixelData<Rgba32>(_imageData, Convert.ToInt32(Width), Convert.ToInt32(Height));
+      using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+      {
+        image.SaveAsPng(stream);
+      }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          Release();
+        }
+
+        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+        // TODO: set large fields to null
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
     }
   }
 }

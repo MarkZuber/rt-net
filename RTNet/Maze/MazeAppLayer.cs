@@ -31,23 +31,9 @@ namespace RTNet.Maze
       _enum = _executor.ExecuteStep().GetEnumerator();
     }
 
-    public void Initialize(ImGuiController controller)
-    {
-    }
-
-    public void OnAttach()
-    {
-    }
-
-    public void OnDetach()
-    {
-    }
-
     private void Render()
     {
       var start = DateTime.UtcNow;
-
-
 
       var end = DateTime.UtcNow;
       _lastRenderTime = (end - start).TotalMilliseconds;
@@ -91,7 +77,7 @@ namespace RTNet.Maze
         _hasConsoleWritten = true;
       }
 
-      var finalImgPtr = _executor.GetImageBuffer(_viewportWidth, _viewportHeight).CaptureImageBufferPointer();
+      var finalImgPtr = _executor.GetPixelBuffer(_viewportWidth, _viewportHeight).CaptureImageBufferPointer();
       if (finalImgPtr != IntPtr.Zero)
       {
         ImGui.Image(finalImgPtr, new Vector2(_viewportWidth, _viewportHeight));

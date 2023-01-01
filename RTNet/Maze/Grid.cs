@@ -146,17 +146,17 @@ namespace MazeNet
       return sb.ToString();
     }
 
-    public ImageBuffer GetImageBuffer(UInt32 pixelWidth, UInt32 pixelHeight)
+    public PixelBuffer GetPixelBuffer(UInt32 pixelWidth, UInt32 pixelHeight)
     {
       using (var _ = new LogTimer("GetTexture()"))
       {
-        var imageBuffer = new ImageBuffer(pixelWidth, pixelHeight);
+        var pixelBuffer = new PixelBuffer(pixelWidth, pixelHeight);
 
         // for (UInt32 y = 0; y < 255; y++)
         // {
         //   for (UInt32 x = 0; x < 255; x++)
         //   {
-        //     imageBuffer.SetPixel(x, y, new Vector4(
+        //     pixelBuffer.SetPixel(x, y, new Vector4(
         //       ((float)(255.0 - (float)y)) / 255.0f,
         //       ((float)y / 255.0f) / 255.0f,
         //       ((float)(255.0f - (float)x)) / 255.0f,
@@ -168,7 +168,7 @@ namespace MazeNet
         // {
         //   for (UInt32 x = 400; x < 655; x++)
         //   {
-        //     imageBuffer.SetPixel(x, y, new Vector4(
+        //     pixelBuffer.SetPixel(x, y, new Vector4(
         //       ((float)(255.0 - (float)y)) / 255.0f,
         //       ((float)y / 255.0f) / 255.0f,
         //       ((float)(255.0f - (float)(x - 400))) / 255.0f,
@@ -180,9 +180,9 @@ namespace MazeNet
         {
           for (UInt32 x = 0; x < 255; x++)
           {
-            imageBuffer.SetPixel(x, y, new Vector3((float)y / 255.0f, 0.0f, 0.0f));
-            imageBuffer.SetPixel(x + 300, y, new Vector3(0.0f, (float)y / 255.0f, 0.0f));
-            imageBuffer.SetPixel(x + 600, y, new Vector3(0.0f, 0.0f, (float)y / 255.0f));
+            pixelBuffer.SetPixel(x, y, new Vector3((float)y / 255.0f, 0.0f, 0.0f));
+            pixelBuffer.SetPixel(x + 300, y, new Vector3(0.0f, (float)y / 255.0f, 0.0f));
+            pixelBuffer.SetPixel(x + 600, y, new Vector3(0.0f, 0.0f, (float)y / 255.0f));
           }
         }
 
@@ -218,24 +218,24 @@ namespace MazeNet
 
             if (cell.North == null)
             {
-              imageBuffer.DrawLineWithThickness(x1, y1, x2, y1, foreColor);
+              pixelBuffer.DrawLineWithThickness(x1, y1, x2, y1, foreColor);
             }
             if (cell.West == null)
             {
-              imageBuffer.DrawLineWithThickness(x1, y1, x1, y2, foreColor);
+              pixelBuffer.DrawLineWithThickness(x1, y1, x1, y2, foreColor);
             }
             if (!cell.IsLinked(cell.East))
             {
-              imageBuffer.DrawLineWithThickness(x2, y1, x2, y2, foreColor);
+              pixelBuffer.DrawLineWithThickness(x2, y1, x2, y2, foreColor);
             }
             if (!cell.IsLinked(cell.South))
             {
-              imageBuffer.DrawLineWithThickness(x1, y2, x2, y2, foreColor);
+              pixelBuffer.DrawLineWithThickness(x1, y2, x2, y2, foreColor);
             }
           }
         }
 
-        return imageBuffer;
+        return pixelBuffer;
       }
     }
   }

@@ -21,9 +21,9 @@ namespace WkndRay.Executors
       _numSamples = numSamples;
     }
 
-    public ImageBuffer Execute(uint width, uint height)
+    public PixelBuffer Execute(uint width, uint height)
     {
-      var pixelBuffer = new ImageBuffer(width, height);
+      var pixelBuffer = new PixelBuffer(width, height);
       float aperture = 0.01f;
       var lookFrom = new Vector3(24.0f, 2.0f, 6.0f);
       var lookAt = Vector3.UnitY;

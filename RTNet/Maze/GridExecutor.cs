@@ -19,9 +19,9 @@ namespace MazeNet
 
     public abstract IEnumerable<bool> ExecuteStep();
 
-    public virtual ImageBuffer GetImageBuffer(UInt32 pixelWidth, UInt32 pixelHeight)
+    public virtual PixelBuffer GetPixelBuffer(UInt32 pixelWidth, UInt32 pixelHeight)
     {
-      return Grid.GetImageBuffer(pixelWidth, pixelHeight);
+      return Grid.GetPixelBuffer(pixelWidth, pixelHeight);
     }
 
     public override string ToString()

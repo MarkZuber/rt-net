@@ -10,6 +10,6 @@ namespace WkndRay.Executors
 {
   public interface IExecutor
   {
-    ImageBuffer Execute(uint width, uint height);
+    PixelBuffer Execute(uint width, uint height);
   }
 }
