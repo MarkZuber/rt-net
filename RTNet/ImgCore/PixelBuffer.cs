@@ -29,7 +29,7 @@ namespace RTNet.ImgCore
       _imageData = imageData;
     }
 
-    private static UInt32 PixelFormatSize => 4;
+    public static UInt32 PixelFormatSize => 4;
     private PixelFormat Format = PixelFormat.R8_G8_B8_A8_UNorm;
     private bool disposedValue;
 
@@ -75,11 +75,18 @@ namespace RTNet.ImgCore
 
     public void SetPixel(UInt32 x, UInt32 y, Vector4 color)
     {
-      UInt32 offset = CalculateOffset(x, y);
-      _imageData[offset] = Convert.ToByte(Math.Clamp(((float)color.X), 0.0, 1.0) * 255.0f);
-      _imageData[offset + 1] = Convert.ToByte(Math.Clamp(((float)color.Y), 0.0, 1.0) * 255.0f);
-      _imageData[offset + 2] = Convert.ToByte(Math.Clamp(((float)color.Z), 0.0, 1.0) * 255.0f);
-      _imageData[offset + 3] = Convert.ToByte(Math.Clamp(((float)color.W), 0.0, 1.0) * 255.0f);
+      var bytes = GetByteArrayFromVector4(color);
+      Array.Copy(bytes, 0, _imageData, CalculateOffset(x, y), bytes.Length);
+    }
+
+    public static byte[] GetByteArrayFromVector4(Vector4 color)
+    {
+      var arr = new byte[PixelFormatSize];
+      arr[0] = Convert.ToByte(Math.Clamp(((float)color.X), 0.0, 1.0) * 255.0f);
+      arr[1] = Convert.ToByte(Math.Clamp(((float)color.Y), 0.0, 1.0) * 255.0f);
+      arr[2] = Convert.ToByte(Math.Clamp(((float)color.Z), 0.0, 1.0) * 255.0f);
+      arr[3] = Convert.ToByte(Math.Clamp(((float)color.W), 0.0, 1.0) * 255.0f);
+      return arr;
     }
 
     public void SetPixel(UInt32 x, UInt32 y, Vector3 color)
@@ -100,6 +107,13 @@ namespace RTNet.ImgCore
         SetPixel(x, y, color);
         x++;
       }
+    }
+
+    public void SetPixelRowBytes(uint y, byte[] pixelData)
+    {
+      // assert pixelData.Length == PixelFormatSize * Width;
+      UInt32 offset = CalculateOffset(0, y);
+      Array.Copy(pixelData, 0, _imageData, offset, pixelData.Length);
     }
 
     public Vector4 GetPixel(UInt32 x, UInt32 y)

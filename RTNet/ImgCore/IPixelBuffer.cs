@@ -31,5 +31,6 @@ namespace RTNet.ImgCore
 
     void SaveToFileAsPng(string filePath);
     void SetPixelRowColors(UInt32 y, IEnumerable<Vector4> rowPixels);
+    void SetPixelRowBytes(uint y, byte[] pixelData);
   }
 }

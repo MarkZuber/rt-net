@@ -21,8 +21,9 @@ namespace WkndRay
 
     public WkndRayAppLayer()
     {
-      _renderer = new PerLineRenderer();
-      _scene = new CornellBoxScene();
+      _renderer = new Renderer();
+      // _scene = new CornellBoxScene();
+      _scene = new ManySpheresScene();
     }
 
     private void Render()
@@ -30,7 +31,7 @@ namespace WkndRay
       var start = DateTime.UtcNow;
 
       int numThreads = Environment.ProcessorCount;
-      const int RayTraceDepth = 10;
+      const int RayTraceDepth = 50;
       const int NumSamples = 500;
 
       var renderConfig = new RenderConfig(numThreads, RayTraceDepth, NumSamples)
