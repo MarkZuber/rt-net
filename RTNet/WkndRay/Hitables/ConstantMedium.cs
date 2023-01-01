@@ -25,15 +25,15 @@ namespace WkndRay.Hitables
     public float Density { get; }
     public IMaterial PhaseFunction { get; }
 
-    public override HitRecord Hit(Ray ray, float tMin, float tMax)
+    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
     {
-      HitRecord hitRecord1 = Boundary.Hit(ray, -float.MaxValue, float.MaxValue);
+      HitRecord? hitRecord1 = Boundary.Hit(ray, -float.MaxValue, float.MaxValue);
       if (hitRecord1 == null)
       {
         return null;
       }
 
-      HitRecord hitRecord2 = Boundary.Hit(ray, hitRecord1.T + 0.0001f, float.MaxValue);
+      HitRecord? hitRecord2 = Boundary.Hit(ray, hitRecord1.T + 0.0001f, float.MaxValue);
       if (hitRecord2 == null)
       {
         return null;
@@ -79,7 +79,7 @@ namespace WkndRay.Hitables
       return null;
     }
 
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override AABB? GetBoundingBox(float t0, float t1)
     {
       return Boundary.GetBoundingBox(t0, t1);
     }

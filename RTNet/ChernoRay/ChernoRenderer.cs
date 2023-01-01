@@ -2,7 +2,7 @@ using RTNet.ImgCore;
 using Veldrid;
 using System.Numerics;
 
-namespace RTNet
+namespace RTNet.ChernoRay
 {
 
   public struct Ray
@@ -45,7 +45,7 @@ namespace RTNet
     public List<Material> Materials = new List<Material>();
   };
 
-  public class Renderer
+  public class ChernoRenderer
   {
     private Random _random = new Random();
 
@@ -64,9 +64,9 @@ namespace RTNet
         _random.NextSingle() * (max - min) + min);
     }
 
-    public Renderer(UInt32 width, UInt32 height)
+    public ChernoRenderer(UInt32 width, UInt32 height)
     {
-      _finalImageBuffer = new PixelBuffer(width, height);
+      _finalImageBuffer = new PixelBuffer(width, height, true);
       _camera = new Camera(0.0f, 0.0f, 0.0f);
     }
 

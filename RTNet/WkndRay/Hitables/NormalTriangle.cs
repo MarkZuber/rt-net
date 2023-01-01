@@ -37,7 +37,7 @@ namespace WkndRay.Hitables
     public List<Vector3> Normals { get; }
     public IMaterial Material { get; }
 
-    public override HitRecord Hit(Ray ray, float tMin, float tMax)
+    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
     {
       var e1 = Vertices[1] - Vertices[0];
       var e2 = Vertices[2] - Vertices[0];

@@ -29,7 +29,7 @@ namespace WkndRay.Hitables
     public float K { get; }
     public IMaterial Material { get; }
 
-    public override HitRecord Hit(Ray ray, float tMin, float tMax)
+    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
     {
       float t = (K - ray.Origin.Y) / ray.Direction.Y;
       if (t < tMin || t > tMax)
@@ -59,7 +59,7 @@ namespace WkndRay.Hitables
 
     public override float GetPdfValue(Vector3 origin, Vector3 v)
     {
-      HitRecord hr = Hit(new Ray(origin, v), 0.001f, float.MaxValue);
+      HitRecord? hr = Hit(new Ray(origin, v), 0.001f, float.MaxValue);
       if (hr == null)
       {
         return 0.0f;

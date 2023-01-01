@@ -23,6 +23,8 @@ namespace WkndRay.Scenes
       var light = new DiffuseLight(new ColorTexture(1.0f, 1.0f, 1.0f));
       var glass = new DialectricMaterial(1.5f);
 
+      var red = new LambertianMaterial(new ColorTexture(0.65f, 0.05f, 0.05f));
+
       // _light = new XzRect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light);
       _light = new XzRect(113.0f, 443.0f, 127.0f, 432.0f, 554.0f, light);
       _glassSphere = new Sphere(new Vector3(190.0f, 90.0f, 190.0f), 90.0f, glass);

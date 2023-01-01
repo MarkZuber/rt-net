@@ -1,6 +1,8 @@
 ﻿
+using RTNet.ChernoRay;
 using RTNet.ImgCore;
 using RTNet.Maze;
+using WkndRay;
 
 namespace RTNet
 {
@@ -12,7 +14,7 @@ namespace RTNet
       {
         var application = new Application(new ApplicationSpec { Name = "RT.NET", Width = 1700, Height = 1200 });
         application.AddAppLayer(new WkndRayAppLayer());
-        // application.AddAppLayer(new RayTracerAppLayer());
+        // application.AddAppLayer(new ChernoRayAppLayer());
         // application.AddAppLayer(new MazeAppLayer());
         application.Run();
       }

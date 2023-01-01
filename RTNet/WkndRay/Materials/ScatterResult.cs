@@ -11,7 +11,7 @@ namespace WkndRay.Materials
 {
   public class ScatterResult
   {
-    public ScatterResult(bool isScattered, Vector4 attenuation, Ray specularRay, IPdf pdf)
+    public ScatterResult(bool isScattered, Vector4 attenuation, Ray? specularRay, IPdf? pdf)
     {
       IsScattered = isScattered;
       Attenuation = attenuation;
@@ -25,9 +25,9 @@ namespace WkndRay.Materials
     }
 
     public bool IsScattered { get; }
-    public Ray SpecularRay { get; }
+    public Ray? SpecularRay { get; }
     public bool IsSpecular => SpecularRay != null;
     public Vector4 Attenuation { get; }
-    public IPdf Pdf { get; }  // probability distribution function
+    public IPdf? Pdf { get; }  // probability distribution function
   }
 }

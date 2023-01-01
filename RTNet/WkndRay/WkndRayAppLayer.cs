@@ -6,7 +6,7 @@ using Veldrid.ImageSharp;
 using WkndRay;
 using WkndRay.Scenes;
 
-namespace RTNet
+namespace WkndRay
 {
   public class WkndRayAppLayer : IAppLayer
   {
@@ -31,7 +31,7 @@ namespace RTNet
 
       int numThreads = Environment.ProcessorCount;
       const int RayTraceDepth = 10;
-      const int NumSamples = 10;
+      const int NumSamples = 500;
 
       var renderConfig = new RenderConfig(numThreads, RayTraceDepth, NumSamples)
       {
@@ -40,7 +40,7 @@ namespace RTNet
 
       if (_pixelBuffer == null)
       {
-        _pixelBuffer = new PixelBuffer(200, 200, true);
+        _pixelBuffer = new PixelBuffer(600, 600, true);
       }
 
       Task.Run(() =>

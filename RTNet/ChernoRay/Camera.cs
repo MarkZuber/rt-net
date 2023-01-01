@@ -1,7 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 
-namespace RTNet
+namespace RTNet.ChernoRay
 {
   public class Camera
   {

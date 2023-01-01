@@ -17,7 +17,7 @@ namespace WkndRay
 {
   public class PerPixelRenderer : IRenderer
   {
-    public event EventHandler<RenderProgressEventArgs> Progress;
+    // public event EventHandler<RenderProgressEventArgs> Progress;
 
     public RendererData Render(IPixelBuffer pixelArray, IScene scene, RenderConfig renderConfig)
     {
@@ -38,7 +38,7 @@ namespace WkndRay
         RenderConfig renderConfig,
         Func<Ray, Vector4> backgroundFunc)
     {
-      Progress?.Invoke(this, new RenderProgressEventArgs(0.0f));
+      // Progress?.Invoke(this, new RenderProgressEventArgs(0.0f));
 
       if (renderConfig.TwoPhase)
       {
@@ -111,7 +111,7 @@ namespace WkndRay
     {
       try
       {
-        while (inputQueue.TryDequeue(out RenderInput input))
+        while (inputQueue.TryDequeue(out RenderInput? input))
         {
           var pixelData = rayTracer.GetPixelColor(input.X, input.Y);
           resultQueue.Enqueue(new RenderResult(input.X, input.Y, pixelData));
@@ -164,7 +164,7 @@ namespace WkndRay
             {
               previousPercent = intPercent;
               Console.WriteLine($"Percent Complete: {percentComplete:F}%");
-              Progress?.Invoke(this, new RenderProgressEventArgs(percentComplete));
+              // Progress?.Invoke(this, new RenderProgressEventArgs(percentComplete));
             }
           }
         }

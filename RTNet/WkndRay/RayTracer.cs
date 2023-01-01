@@ -44,8 +44,6 @@ namespace WkndRay
     /// <inheritdoc />
     public PixelData GetPixelColor(uint x, uint y)
     {
-      // Debug.WriteLine($"Pixel: ({x}, {y})");
-
       var pixelData = new PixelData(x, y);
 
       using (new BlockTimer(pixelData.SetPixelColorMilliseconds))
@@ -82,7 +80,6 @@ namespace WkndRay
         pixelData.AverageSampleMilliseconds = totalSampleMilliseconds / _renderConfig.NumSamples;
 
         color = color.DeNan().ApplyGamma2();
-        // Debug.WriteLine($"Final Color at ({x}, {y}) -> ({color.R}, {color.G}, {color.B})");
         pixelData.Color = color;
       }
 
@@ -91,77 +88,54 @@ namespace WkndRay
 
     private Vector4 GetRayColor(Ray ray, IHitable world, PixelData pixelData, int depth)
     {
-      // Debug.WriteLine($"Depth: {depth}");
       pixelData.SetDepth(depth);
-      try
+      // the 0.001 corrects for the "shadow acne"
+      HitRecord? hr = world.Hit(ray, 0.001f, float.MaxValue);
+      if (hr != null && hr.Material != null)
       {
-        // the 0.001 corrects for the "shadow acne"
-        HitRecord hr = world.Hit(ray, 0.001f, float.MaxValue);
-        if (hr != null)
+        var emitted = hr.Material.Emitted(ray, hr, hr.UvCoords, hr.P);
+
+        if (depth < _renderConfig.RayTraceDepth)
         {
-          var emitted = hr.Material.Emitted(ray, hr, hr.UvCoords, hr.P);
-
-          if (hr.Material is DiffuseLight)
+          var scatterResult = hr.Material.Scatter(ray, hr);
+          if (scatterResult.IsScattered)
           {
-            // Debug.WriteLine($"HIT A LIGHT. Emitted: {emitted}");
-          }
-
-          if (depth < _renderConfig.RayTraceDepth)
-          {
-            var scatterResult = hr.Material.Scatter(ray, hr);
-            if (scatterResult.IsScattered)
+            if (scatterResult.IsSpecular && scatterResult.SpecularRay != null)
             {
-              if (scatterResult.IsSpecular)
-              {
-                return scatterResult.Attenuation * GetRayColor(scatterResult.SpecularRay, world, pixelData, depth + 1);
-              }
-              else
-              {
-                var p0 = new HitablePdf(_lightHitable, hr.P);
-                var p = new MixturePdf(p0, scatterResult.Pdf);
-                var scattered = new Ray(hr.P, p.Generate());
-                float pdfValue = p.GetValue(scattered.Direction);
-
-                var scatteringPdf = hr.Material.ScatteringPdf(ray, hr, scattered);
-                if (scatteringPdf < 0.01f)
-                {
-                  scatteringPdf = 0.01f;
-                  //    //pdfValue = 1.0f;
-                }
-
-                {
-                  //pdfValue = 1.0f;
-                }
-
-                var depthRayColor = GetRayColor(scattered, world, pixelData, depth + 1);
-                Vector4 recurseColor = ((scatterResult.Attenuation * scatteringPdf * depthRayColor) / pdfValue);
-                // Debug.WriteLine($"Attenuation ({scatterResult.Attenuation}) ScatteringPdf ({scatteringPdf}) DepthRayColor({depthRayColor}) PdfValue({pdfValue})");
-                // Debug.WriteLine($"emitted: {emitted}");
-                // Debug.WriteLine($"RecurseColor: {recurseColor}");
-                return emitted + recurseColor;
-              }
+              return scatterResult.Attenuation * GetRayColor(scatterResult.SpecularRay, world, pixelData, depth + 1);
             }
             else
             {
-              // Debug.WriteLine("NOT SCATTERED");
+              var p0 = new HitablePdf(_lightHitable, hr.P);
+              var p = new MixturePdf(p0, scatterResult.Pdf);
+              var scattered = new Ray(hr.P, p.Generate());
+              float pdfValue = p.GetValue(scattered.Direction);
+
+              var scatteringPdf = hr.Material.ScatteringPdf(ray, hr, scattered);
+              if (scatteringPdf < 0.01f)
+              {
+                scatteringPdf = 0.01f;
+                //    //pdfValue = 1.0f;
+              }
+
+              {
+                //pdfValue = 1.0f;
+              }
+
+              var depthRayColor = GetRayColor(scattered, world, pixelData, depth + 1);
+              Vector4 recurseColor = ((scatterResult.Attenuation * scatteringPdf * depthRayColor) / pdfValue);
+              // Debug.WriteLine($"Attenuation ({scatterResult.Attenuation}) ScatteringPdf ({scatteringPdf}) DepthRayColor({depthRayColor}) PdfValue({pdfValue})");
+              // Debug.WriteLine($"emitted: {emitted}");
+              // Debug.WriteLine($"RecurseColor: {recurseColor}");
+              return emitted + recurseColor;
             }
           }
-
-          return emitted;
         }
 
-        if (depth == 0)
-        {
-          // Debug.WriteLine("depth at 0...");
-        }
+        return emitted;
+      }
 
-        // Debug.WriteLine("returning backgroundfunc");
-        return _backgroundFunc(ray);
-      }
-      finally
-      {
-        // Debug.WriteLine($"Exiting Depth: {depth}");
-      }
+      return _backgroundFunc(ray);
     }
   }
 }

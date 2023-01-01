@@ -29,7 +29,7 @@ namespace WkndRay.Hitables
     public float K { get; }
     public IMaterial Material { get; }
 
-    public override HitRecord Hit(Ray ray, float tMin, float tMax)
+    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
     {
       float t = (K - ray.Origin.X) / ray.Direction.X;
       if (t < tMin || t > tMax)

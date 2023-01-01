@@ -21,7 +21,7 @@ namespace WkndRay
     private Vector4[] _accumulationData = new Vector4[0];
     private UInt64 _frameIndex = 1;
 
-    public event EventHandler<RenderProgressEventArgs> Progress;
+    // public event EventHandler<RenderProgressEventArgs> Progress;
 
     public RendererData Render(IPixelBuffer pixelArray, IScene scene, RenderConfig renderConfig)
     {
@@ -30,7 +30,7 @@ namespace WkndRay
 
     public RendererData Render(IPixelBuffer pixelArray, Camera camera, IHitable world, IHitable lightHitable, RenderConfig renderConfig, Func<Ray, Vector4> backgroundFunc)
     {
-      Progress?.Invoke(this, new RenderProgressEventArgs(0.0f));
+      // Progress?.Invoke(this, new RenderProgressEventArgs(0.0f));
 
       _accumulationData = new Vector4[pixelArray.Width * pixelArray.Height];
 
@@ -185,7 +185,7 @@ namespace WkndRay
           var completeRows = Convert.ToSingle(pixelBuffer.Height - incompleteRows.Count);
           var percentComplete = completeRows / totalRows * 100.0f;
           Console.WriteLine($"Percent Complete: {percentComplete:F}%");
-          Progress?.Invoke(this, new RenderProgressEventArgs(percentComplete));
+          // Progress?.Invoke(this, new RenderProgressEventArgs(percentComplete));
         }
       }
     }

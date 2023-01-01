@@ -49,7 +49,7 @@ namespace WkndRay.Executors
 
     private Vector4 GetRayColor(Ray ray, IHitable world)
     {
-      HitRecord hr = world.Hit(ray, 0.0f, float.MaxValue);
+      HitRecord? hr = world.Hit(ray, 0.0f, float.MaxValue);
       if (hr != null)
       {
         return (0.5f * new Vector3(hr.Normal.X + 1.0f, hr.Normal.Y + 1.0f, hr.Normal.Z + 1.0f)).ToVector4();

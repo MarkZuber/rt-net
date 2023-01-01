@@ -13,7 +13,7 @@ namespace WkndRay
 {
   public class Sphere : AbstractHitable
   {
-    public Sphere(Vector3 center, float radius, IMaterial material = null)
+    public Sphere(Vector3 center, float radius, IMaterial? material = null)
     {
       Center = center;
       Radius = radius;
@@ -22,9 +22,9 @@ namespace WkndRay
 
     public Vector3 Center { get; }
     public float Radius { get; }
-    public IMaterial Material { get; }
+    public IMaterial? Material { get; }
 
-    public override HitRecord Hit(Ray ray, float tMin, float tMax)
+    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
     {
       var oc = ray.Origin - Center;
       float a = Vector3.Dot(ray.Direction, ray.Direction);
@@ -58,7 +58,7 @@ namespace WkndRay
 
     public override float GetPdfValue(Vector3 origin, Vector3 v)
     {
-      HitRecord hr = Hit(new Ray(origin, v), 0.001f, float.MaxValue);
+      HitRecord? hr = Hit(new Ray(origin, v), 0.001f, float.MaxValue);
       if (hr == null)
       {
         return 0.0f;

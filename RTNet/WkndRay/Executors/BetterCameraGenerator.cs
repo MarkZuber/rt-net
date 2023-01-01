@@ -81,13 +81,13 @@ namespace WkndRay.Executors
     private Vector4 GetRayColor(Ray ray, IHitable world, int depth)
     {
       // the 0.001 corrects for the "shadow acne"
-      HitRecord hr = world.Hit(ray, 0.001f, float.MaxValue);
+      HitRecord? hr = world.Hit(ray, 0.001f, float.MaxValue);
       if (hr != null)
       {
-        if (depth < 50)
+        if (depth < 50 && hr.Material != null)
         {
           var scatterResult = hr.Material.Scatter(ray, hr);
-          if (scatterResult.IsScattered)
+          if (scatterResult.IsScattered && scatterResult.SpecularRay != null)
           {
             return scatterResult.Attenuation * GetRayColor(scatterResult.SpecularRay, world, depth + 1);
           }

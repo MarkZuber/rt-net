@@ -4,20 +4,20 @@ using RTNet.ImgCore;
 using Veldrid;
 using Veldrid.ImageSharp;
 
-namespace RTNet
+namespace RTNet.ChernoRay
 {
-  public class RayTracerAppLayer : IAppLayer
+  public class ChernoRayAppLayer : IAppLayer
   {
     private UInt32 _viewportWidth;
     private UInt32 _viewportHeight;
     private double _lastRenderTime;
-    private Renderer _renderer;
+    private ChernoRenderer _renderer;
     private Camera _camera;
     private Scene _scene;
 
-    public RayTracerAppLayer()
+    public ChernoRayAppLayer()
     {
-      _renderer = new Renderer(600, 600);
+      _renderer = new ChernoRenderer(600, 600);
       _camera = new Camera(45.0f, 0.1f, 100.0f);
       _scene = new Scene();
 

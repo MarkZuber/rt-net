@@ -11,7 +11,7 @@ namespace WkndRay
 {
   public class HitRecord
   {
-    public HitRecord(float t, Vector3 p, Vector3 normal, Vector2? uvCoords, IMaterial material)
+    public HitRecord(float t, Vector3 p, Vector3 normal, Vector2? uvCoords, IMaterial? material)
     {
       T = t;
       P = p;
@@ -23,7 +23,7 @@ namespace WkndRay
     public float T { get; }
     public Vector3 P { get; }
     public Vector3 Normal { get; }
-    public IMaterial Material { get; }
+    public IMaterial? Material { get; }
 
     // Texture Coordinates
     public Vector2 UvCoords { get; }
