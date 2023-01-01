@@ -17,37 +17,56 @@ using WkndRay.Scenes;
 
 namespace WkndRay
 {
-  public class Renderer : IRenderer
+  public class Renderer
   {
     // public event EventHandler<RenderProgressEventArgs> Progress;
 
-    public RendererData Render(IPixelBuffer pixelArray, IScene scene, RenderConfig renderConfig)
+    private Stopwatch _renderStopwatch = new Stopwatch();
+
+    public RendererData Render(CancellationToken cancellationToken, IPixelBuffer pixelArray, IScene scene, RenderConfig renderConfig)
     {
-      return Render(pixelArray, scene.GetCamera(pixelArray.Width, pixelArray.Height), scene.GetWorld(), scene.GetLightHitable(), renderConfig, scene.GetBackgroundFunc());
+      return Render(cancellationToken, pixelArray, scene.GetCamera(pixelArray.Width, pixelArray.Height), scene.GetWorld(), scene.GetLightHitable(), renderConfig, scene.GetBackgroundFunc());
     }
 
-    public RendererData Render(IPixelBuffer pixelArray, Camera camera, IHitable world, IHitable lightHitable, RenderConfig renderConfig, Func<Ray, Vector4> backgroundFunc)
+    public long ElapsedMilliseconds => _renderStopwatch.ElapsedMilliseconds;
+
+
+    public RendererData Render(CancellationToken cancellationToken, IPixelBuffer pixelArray, Camera camera, IHitable world, IHitable lightHitable, RenderConfig renderConfig, Func<Ray, Vector4> backgroundFunc)
     {
       // Progress?.Invoke(this, new RenderProgressEventArgs(0.0f));
 
-      // two pass
-      RenderMulti(pixelArray, camera, world, lightHitable, new RenderConfig(renderConfig.NumThreads, 5, 1), backgroundFunc);
-      return RenderMulti(pixelArray, camera, world, lightHitable, renderConfig, backgroundFunc);
+      if (renderConfig.TwoPhase)
+      {
+        RenderMulti(cancellationToken, pixelArray, camera, world, lightHitable, new RenderConfig(renderConfig.NumThreads, 5, 1), backgroundFunc);
+      }
+      return RenderMulti(cancellationToken, pixelArray, camera, world, lightHitable, renderConfig, backgroundFunc);
     }
 
-    public RendererData RenderMulti(IPixelBuffer pixelArray, Camera camera, IHitable world, IHitable lightHitable, RenderConfig renderConfig, Func<Ray, Vector4> backgroundFunc)
+    public RendererData RenderMulti(CancellationToken cancellationToken, IPixelBuffer pixelArray, Camera camera, IHitable world, IHitable lightHitable, RenderConfig renderConfig, Func<Ray, Vector4> backgroundFunc)
     {
+      _renderStopwatch.Reset();
+      _renderStopwatch.Start();
+
       var rendererData = new RendererData(pixelArray.Width, pixelArray.Height);
       var rayTracer = new RayTracer(camera, world, lightHitable, renderConfig, pixelArray.Width, pixelArray.Height, backgroundFunc);
+      var parallelOptions = new ParallelOptions();
+      parallelOptions.CancellationToken = cancellationToken;
+      parallelOptions.MaxDegreeOfParallelism = renderConfig.NumThreads;
 
       try
       {
-        ThreadPool.SetMinThreads(16, 16);
-        Parallel.ForEach(Enumerable.Range(0, Convert.ToInt32(pixelArray.Height)), y =>
+        // ThreadPool.SetMinThreads(16, 16);
+        try
         {
-          for (uint x = 0; x < pixelArray.Width; x++)
-            pixelArray.SetPixel(x, Convert.ToUInt32(y), rayTracer.GetPixelColor(x, Convert.ToUInt32(y)).Color);
-        });
+          Parallel.ForEach(Enumerable.Range(0, Convert.ToInt32(pixelArray.Height)), parallelOptions, y =>
+          {
+            for (uint x = 0; x < pixelArray.Width; x++)
+              pixelArray.SetPixel(x, Convert.ToUInt32(y), rayTracer.GetPixelColor(x, Convert.ToUInt32(y)).Color);
+          });
+        }
+        catch (OperationCanceledException)
+        {
+        }
 
         // Other possible approaches.  The one above seems to work just fine.
 
@@ -77,6 +96,10 @@ namespace WkndRay
       catch (Exception ex)
       {
         Debug.WriteLine(ex);
+      }
+      finally
+      {
+        _renderStopwatch.Stop();
       }
 
       return rendererData;

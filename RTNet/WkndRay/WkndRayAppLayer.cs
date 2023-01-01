@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using RTNet.ImgCore;
@@ -8,16 +9,29 @@ using WkndRay.Scenes;
 
 namespace WkndRay
 {
+  public enum RenderingState
+  {
+    Stopped,
+    Running,
+    Stopping
+  }
+
   public class WkndRayAppLayer : IAppLayer
   {
     private UInt32 _viewportWidth;
     private UInt32 _viewportHeight;
     private double _lastRenderTime;
-    private IRenderer _renderer;
+    private Renderer _renderer;
+    private CancellationTokenSource _rendererCancellationTokenSource = new CancellationTokenSource();
     private IScene _scene;
     private PixelBuffer? _pixelBuffer;
-
-    private bool _renderStarted;
+    private int _desiredImageWidth = 600;
+    private int _desiredImageHeight = 600;
+    private int _desiredRayDepth = 50;
+    private int _desiredSamples = 50;
+    private bool _desiredTwoPhase = true;
+    private RenderingState _renderingState = RenderingState.Stopped;
+    private Task _renderTask = Task.CompletedTask;
 
     public WkndRayAppLayer()
     {
@@ -31,43 +45,75 @@ namespace WkndRay
       var start = DateTime.UtcNow;
 
       int numThreads = Environment.ProcessorCount;
-      const int RayTraceDepth = 50;
-      const int NumSamples = 500;
 
-      var renderConfig = new RenderConfig(numThreads, RayTraceDepth, NumSamples)
+      var renderConfig = new RenderConfig(numThreads, _desiredRayDepth, _desiredSamples)
       {
-        TwoPhase = false
+        TwoPhase = _desiredTwoPhase
       };
 
-      if (_pixelBuffer == null)
-      {
-        _pixelBuffer = new PixelBuffer(600, 600, true);
-      }
+      _pixelBuffer = new PixelBuffer(Convert.ToUInt32(_desiredImageWidth), Convert.ToUInt32(_desiredImageHeight), true);
 
-      Task.Run(() =>
+      // TODO: the cancel operation isn't immediate.  We need a way to wait for the renderer to exit
+      // before proceeding.
+
+      _rendererCancellationTokenSource.Dispose();
+      _rendererCancellationTokenSource = new CancellationTokenSource();
+      _renderer = new Renderer();
+
+      _renderTask = Task.Run(() =>
       {
-        var rendererData = _renderer.Render(_pixelBuffer!, _scene, renderConfig);
+        var rendererData = _renderer.Render(_rendererCancellationTokenSource.Token, _pixelBuffer!, _scene, renderConfig);
         _pixelBuffer.SaveToFileAsPng("/Users/zube/trialrun.png");
       });
       var end = DateTime.UtcNow;
       _lastRenderTime = (end - start).TotalMilliseconds;
     }
 
+    private void StopRenderer()
+    {
+      _rendererCancellationTokenSource.Cancel();
+    }
+
     public void OnUIRender()
     {
       ImGui.Begin("Settings");
-      ImGui.Text(String.Format("Last Render: {0,3}ms", _lastRenderTime));
-      if (ImGui.Button("Render"))
-      {
-        // Render();
-      }
-      ImGui.End();
+      ImGui.Text(String.Format("Render: {0,3}ms", _renderer.ElapsedMilliseconds));
 
-      if (!_renderStarted)
+      switch (_renderingState)
       {
-        Render();
-        _renderStarted = true;
+        case RenderingState.Stopped:
+          if (ImGui.Button("Render"))
+          {
+            _renderingState = RenderingState.Running;
+            Render();
+          }
+          break;
+        case RenderingState.Stopping:
+          ImGui.Text("Stopping...");
+          if (_renderTask.IsCompleted)
+          {
+            _renderingState = RenderingState.Stopped;
+          }
+          break;
+        case RenderingState.Running:
+          if (ImGui.Button("Stop"))
+          {
+            _renderingState = RenderingState.Stopping;
+            StopRenderer();
+          }
+          if (_renderTask.IsCompleted)
+          {
+            _renderingState = RenderingState.Stopped;
+          }
+          break;
       }
+
+      ImGui.DragInt("Image Width", ref _desiredImageWidth, 5.0f, 25, 1000);
+      ImGui.DragInt("Image Height", ref _desiredImageHeight, 5.0f, 25, 1000);
+      ImGui.DragInt("Ray Depth", ref _desiredRayDepth, 5.0f, 1, 100);
+      ImGui.DragInt("Samples", ref _desiredSamples, 5.0f, 1, 10000);
+      ImGui.Checkbox("Two Phase", ref _desiredTwoPhase);
+      ImGui.End();
 
       ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0.0f);
 
@@ -76,10 +122,13 @@ namespace WkndRay
       _viewportWidth = (UInt32)ImGui.GetContentRegionAvail().X;
       _viewportHeight = (UInt32)ImGui.GetContentRegionAvail().Y;
 
-      var finalImgPtr = _pixelBuffer!.CaptureImageBufferPointer();
-      if (finalImgPtr != IntPtr.Zero)
+      if (_pixelBuffer != null)
       {
-        ImGui.Image(finalImgPtr, new Vector2(_pixelBuffer.Width, _pixelBuffer.Height));
+        var finalImgPtr = _pixelBuffer.CaptureImageBufferPointer();
+        if (finalImgPtr != IntPtr.Zero)
+        {
+          ImGui.Image(finalImgPtr, new Vector2(_pixelBuffer.Width, _pixelBuffer.Height));
+        }
       }
 
       ImGui.End();
