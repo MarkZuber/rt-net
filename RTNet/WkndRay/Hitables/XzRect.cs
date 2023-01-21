@@ -73,7 +73,7 @@ namespace WkndRay.Hitables
 
     public override Vector3 Random(Vector3 origin)
     {
-      var randomPoint = new Vector3(X0 + (RandomService.Nextfloat() * (X1 - X0)), K, Z0 + (RandomService.Nextfloat() * (Z1 - Z0)));
+      var randomPoint = new Vector3(X0 + (RandomService.NextSingle() * (X1 - X0)), K, Z0 + (RandomService.NextSingle() * (Z1 - Z0)));
       return randomPoint - origin;
     }
   }

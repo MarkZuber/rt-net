@@ -27,7 +27,7 @@ namespace WkndRay
       Vector3 pv;
       do
       {
-        pv = (2.0f * new Vector3(RandomService.Nextfloat(), RandomService.Nextfloat(), RandomService.Nextfloat())) -
+        pv = (2.0f * new Vector3(RandomService.NextSingle(), RandomService.NextSingle(), RandomService.NextSingle())) -
              Vector3.One;
       }
       while (pv.LengthSquared() >= 1.0f);

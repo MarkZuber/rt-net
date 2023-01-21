@@ -52,7 +52,7 @@ namespace WkndRay.Materials
         reflectProbability = 1.0f;
       }
 
-      if (RandomService.Nextfloat() < reflectProbability)
+      if (RandomService.NextSingle() < reflectProbability)
       {
         scattered = new Ray(hitRecord.P, reflected);
       }

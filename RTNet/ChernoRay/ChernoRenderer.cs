@@ -47,7 +47,22 @@ namespace RTNet.ChernoRay
 
   public class ChernoRenderer
   {
-    private Random _random = new Random();
+    static readonly ThreadLocal<Random> _random =
+         new ThreadLocal<Random>(() => new Random(GetSeed()));
+
+    static int GetSeed()
+    {
+      return Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+    }
+
+    private float NextSingle()
+    {
+      if (_random == null || _random.Value == null)
+      {
+        throw new InvalidOperationException("");
+      }
+      return _random.Value.NextSingle();
+    }
 
     private PixelBuffer _finalImageBuffer;
     private Camera _camera;
@@ -58,10 +73,14 @@ namespace RTNet.ChernoRay
 
     private Vector3 RandomVector(float min, float max)
     {
+      if (_random == null || _random.Value == null)
+      {
+        throw new InvalidOperationException("");
+      }
       return new Vector3(
-        _random.NextSingle() * (max - min) + min,
-        _random.NextSingle() * (max - min) + min,
-        _random.NextSingle() * (max - min) + min);
+        NextSingle() * (max - min) + min,
+        NextSingle() * (max - min) + min,
+        NextSingle() * (max - min) + min);
     }
 
     public ChernoRenderer(UInt32 width, UInt32 height)
@@ -97,7 +116,7 @@ namespace RTNet.ChernoRay
 
     private Vector4 PerPixelRandom(UInt32 x, UInt32 y)
     {
-      return new Vector4(Convert.ToSingle(_random.NextDouble()), Convert.ToSingle(_random.NextDouble()), Convert.ToSingle(_random.NextDouble()), 0.0f);
+      return new Vector4(NextSingle(), NextSingle(), NextSingle(), 0.0f);
     }
 
     private Vector3 PerPixel(UInt32 x, UInt32 y)
@@ -220,19 +239,22 @@ namespace RTNet.ChernoRay
         Array.Clear(_accumulationData);
       }
 
-      for (UInt32 y = 0; y < Height; y++)
+      var parallelOptions = new ParallelOptions();
+      parallelOptions.MaxDegreeOfParallelism = Environment.ProcessorCount;
+
+      Parallel.ForEach(Enumerable.Range(0, Convert.ToInt32(Height)), parallelOptions, y =>
       {
         for (UInt32 x = 0; x < Width; x++)
         {
-          var color = PerPixel(x, y);
+          var color = PerPixel(x, Convert.ToUInt32(y));
 
           _accumulationData[y * Width + x] += color;
           var accumulatedColor = _accumulationData[y * Width + x];
           accumulatedColor /= (float)_frameIndex;
           accumulatedColor = Vector3.Clamp(accumulatedColor, new Vector3(0.0f), new Vector3(1.0f));
-          _finalImageBuffer.SetPixel(x, y, accumulatedColor);
+          _finalImageBuffer.SetPixel(x, Convert.ToUInt32(y), accumulatedColor);
         }
-      }
+      });
 
       if (_shouldAccumulate)
       {

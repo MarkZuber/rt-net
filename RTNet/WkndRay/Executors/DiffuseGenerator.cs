@@ -47,8 +47,8 @@ namespace WkndRay.Executors
           Vector4 color = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
           for (int sample = 0; sample < _numSamples; sample++)
           {
-            float u = Convert.ToSingle(i + RandomService.Nextfloat()) / Convert.ToSingle(width);
-            float v = Convert.ToSingle(j + RandomService.Nextfloat()) / Convert.ToSingle(height);
+            float u = Convert.ToSingle(i + RandomService.NextSingle()) / Convert.ToSingle(width);
+            float v = Convert.ToSingle(j + RandomService.NextSingle()) / Convert.ToSingle(height);
             var r = camera.GetRay(u, v);
 
             color += GetRayColor(r, world);

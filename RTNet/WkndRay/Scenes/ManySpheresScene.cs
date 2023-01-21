@@ -46,11 +46,11 @@ namespace WkndRay.Scenes
       {
         for (int b = -11; b < 11; b++)
         {
-          float chooseMat = RandomService.Nextfloat();
+          float chooseMat = RandomService.NextSingle();
           var center = new Vector3(
-            Convert.ToSingle(a) * RandomService.Nextfloat(),
+            Convert.ToSingle(a) * RandomService.NextSingle(),
             0.2f,
-            Convert.ToSingle(b) + (0.9f * RandomService.Nextfloat()));
+            Convert.ToSingle(b) + (0.9f * RandomService.NextSingle()));
 
           if ((center - new Vector3(4.0f, 0.2f, 0.0f)).Length() > 0.9)
           {
@@ -63,9 +63,9 @@ namespace WkndRay.Scenes
                   0.2f,
                   new LambertianMaterial(
                     new ColorTexture(
-                      RandomService.Nextfloat() * RandomService.Nextfloat(),
-                      RandomService.Nextfloat() * RandomService.Nextfloat(),
-                      RandomService.Nextfloat() * RandomService.Nextfloat()))));
+                      RandomService.NextSingle() * RandomService.NextSingle(),
+                      RandomService.NextSingle() * RandomService.NextSingle(),
+                      RandomService.NextSingle() * RandomService.NextSingle()))));
             }
             else if (chooseMat < 0.95)
             {
@@ -76,11 +76,11 @@ namespace WkndRay.Scenes
                   0.2f,
                   new MetalMaterial(
                     new Vector4(
-                      0.5f * (1.0f + RandomService.Nextfloat()),
-                      0.5f * (1.0f + RandomService.Nextfloat()),
-                      0.5f * (1.0f + RandomService.Nextfloat()),
+                      0.5f * (1.0f + RandomService.NextSingle()),
+                      0.5f * (1.0f + RandomService.NextSingle()),
+                      0.5f * (1.0f + RandomService.NextSingle()),
                       1.0f),
-                    0.5f * RandomService.Nextfloat())));
+                    0.5f * RandomService.NextSingle())));
             }
             else
             {
@@ -95,6 +95,7 @@ namespace WkndRay.Scenes
       list.Add(new Sphere(new Vector3(-4.0f, 1.0f, 0.0f), 1.0f, new LambertianMaterial(new ColorTexture(0.4f, 0.2f, 0.1f))));
       list.Add(new Sphere(new Vector3(4.0f, 1.0f, 0.0f), 1.0f, new MetalMaterial(new Vector4(0.7f, 0.6f, 0.5f, 1.0f), 0.0f)));
 
+      // return list;
       return new BvhNode(list, 0.0f, 1.0f);
     }
 

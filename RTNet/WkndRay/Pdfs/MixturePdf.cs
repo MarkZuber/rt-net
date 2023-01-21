@@ -31,7 +31,7 @@ namespace WkndRay.Pdfs
       {
         return P0.Generate();
       }
-      return RandomService.Nextfloat() < 0.5f ? P0.Generate() : P1.Generate();
+      return RandomService.NextSingle() < 0.5f ? P0.Generate() : P1.Generate();
     }
   }
 }

@@ -47,15 +47,15 @@ namespace WkndRay
       _renderStopwatch.Reset();
       _renderStopwatch.Start();
 
-      var rendererData = new RendererData(pixelArray.Width, pixelArray.Height);
-      var rayTracer = new RayTracer(camera, world, lightHitable, renderConfig, pixelArray.Width, pixelArray.Height, backgroundFunc);
       var parallelOptions = new ParallelOptions();
       parallelOptions.CancellationToken = cancellationToken;
-      parallelOptions.MaxDegreeOfParallelism = renderConfig.NumThreads;
+      parallelOptions.MaxDegreeOfParallelism = Environment.ProcessorCount;
+      var rendererData = new RendererData(pixelArray.Width, pixelArray.Height);
+      var rayTracer = new RayTracer(camera, world, lightHitable, renderConfig, pixelArray.Width, pixelArray.Height, backgroundFunc);
 
       try
       {
-        // ThreadPool.SetMinThreads(16, 16);
+
         try
         {
           Parallel.ForEach(Enumerable.Range(0, Convert.ToInt32(pixelArray.Height)), parallelOptions, y =>
@@ -68,30 +68,6 @@ namespace WkndRay
         {
         }
 
-        // Other possible approaches.  The one above seems to work just fine.
-
-        // Parallel.ForEach(Enumerable.Range(0, Convert.ToInt32(pixelArray.Height)), y =>
-        // {
-        //   var rowPixels = new Vector4[pixelArray.Width];
-        //   for (uint x = 0; x < pixelArray.Width; x++)
-        //   {
-        //     rowPixels[x] = rayTracer.GetPixelColor(x, Convert.ToUInt32(y)).Color;
-        //   }
-        //   pixelArray.SetPixelRowColors(Convert.ToUInt32(y), rowPixels);
-        // });
-
-        // Parallel.ForEach(Enumerable.Range(0, Convert.ToInt32(pixelArray.Height)), y =>
-        // {
-        //   var rowPixels = new byte[pixelArray.Width * PixelBuffer.PixelFormatSize];
-        //   for (uint x = 0; x < pixelArray.Width; x++)
-        //   {
-        //     var color = rayTracer.GetPixelColor(x, Convert.ToUInt32(y)).Color;
-        //     var bytes = PixelBuffer.GetByteArrayFromVector4(color);
-        //     int offset = Convert.ToInt32(x * PixelBuffer.PixelFormatSize);
-        //     Array.Copy(bytes, 0, rowPixels, offset, bytes.Length);
-        //   }
-        //   pixelArray.SetPixelRowBytes(Convert.ToUInt32(y), rowPixels);
-        // });
       }
       catch (Exception ex)
       {

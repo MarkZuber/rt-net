@@ -76,11 +76,11 @@ namespace WkndRay.Executors
       {
         for (int b = -11; b < 11; b++)
         {
-          float chooseMat = RandomService.Nextfloat();
+          float chooseMat = RandomService.NextSingle();
           var center = new Vector3(
-            Convert.ToSingle(a) * RandomService.Nextfloat(),
+            Convert.ToSingle(a) * RandomService.NextSingle(),
             0.2f,
-            Convert.ToSingle(b) + (0.9f * RandomService.Nextfloat()));
+            Convert.ToSingle(b) + (0.9f * RandomService.NextSingle()));
           if ((center - new Vector3(4.0f, 0.2f, 0.0f)).Length() > 0.9)
           {
             if (chooseMat < 0.8)
@@ -92,9 +92,9 @@ namespace WkndRay.Executors
                   0.2f,
                   new LambertianMaterial(
                     new ColorTexture(
-                      RandomService.Nextfloat() * RandomService.Nextfloat(),
-                      RandomService.Nextfloat() * RandomService.Nextfloat(),
-                      RandomService.Nextfloat() * RandomService.Nextfloat()))));
+                      RandomService.NextSingle() * RandomService.NextSingle(),
+                      RandomService.NextSingle() * RandomService.NextSingle(),
+                      RandomService.NextSingle() * RandomService.NextSingle()))));
             }
             else if (chooseMat < 0.95)
             {
@@ -105,11 +105,11 @@ namespace WkndRay.Executors
                   0.2f,
                   new MetalMaterial(
                     new Vector4(
-                      0.5f * (1.0f + RandomService.Nextfloat()),
-                      0.5f * (1.0f + RandomService.Nextfloat()),
-                      0.5f * (1.0f + RandomService.Nextfloat()),
+                      0.5f * (1.0f + RandomService.NextSingle()),
+                      0.5f * (1.0f + RandomService.NextSingle()),
+                      0.5f * (1.0f + RandomService.NextSingle()),
                       1.0f),
-                    0.5f * RandomService.Nextfloat())));
+                    0.5f * RandomService.NextSingle())));
             }
             else
             {
@@ -129,7 +129,7 @@ namespace WkndRay.Executors
 
     private float GetRandom()
     {
-      return RandomService.Nextfloat();
+      return RandomService.NextSingle();
     }
 
     private Vector4 GetRayColor(Ray ray, IHitable world, int depth)

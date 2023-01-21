@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using WkndRay.Hitables;
 
@@ -13,10 +14,35 @@ namespace WkndRay
 {
   public class BvhNode : AbstractHitable
   {
+    public void DebugPrint()
+    {
+      Debug.WriteLine($"Box: {Box.Min} {Box.Max}");
+
+      if (Left is BvhNode left)
+      {
+        Debug.WriteLine("LEFT BOX");
+        left.DebugPrint();
+      }
+      else
+      {
+        Debug.WriteLine($"Left -> {Left}");
+      }
+
+      if (Right is BvhNode right)
+      {
+        Debug.WriteLine("RIGHT BOX");
+        right.DebugPrint();
+      }
+      else
+      {
+        Debug.WriteLine($"Right -> {Right}");
+      }
+    }
+
     public BvhNode(IEnumerable<IHitable> hitables, float time0, float time1)
     {
       List<IHitable> list = hitables.ToList();
-      int axis = Convert.ToInt32(3.0f * RandomService.Nextfloat());
+      int axis = Convert.ToInt32(3.0f * RandomService.NextSingle());
       if (axis == 0)
       {
         list.Sort(new HitableXCompare());
@@ -55,6 +81,8 @@ namespace WkndRay
       }
 
       Box = boxLeft.GetSurroundingBox(boxRight);
+
+      DebugPrint();
     }
 
     public IHitable Left { get; }
@@ -69,7 +97,7 @@ namespace WkndRay
       }
 
       HitRecord? hrLeft = Left.Hit(ray, tMin, tMax);
-      HitRecord? hrRight = Right.Hit(ray, tMin, tMax);
+      HitRecord? hrRight = Right.Hit(ray, tMin, hrLeft != null ? hrLeft.T : tMax);
       if (hrLeft != null && hrRight != null)
       {
         return (hrLeft.T < hrRight.T) ? hrLeft : hrRight;

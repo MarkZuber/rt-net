@@ -63,7 +63,7 @@ namespace WkndRay.Hitables
       }
 
       float distanceInsideBoundary = ((rec2T - rec1T) * ray.Direction).Length();
-      float hitDistance = -(1.0f / Density) * MathF.Log(RandomService.Nextfloat());
+      float hitDistance = -(1.0f / Density) * MathF.Log(RandomService.NextSingle());
       if (hitDistance < distanceInsideBoundary)
       {
         float recT = rec1T + (hitDistance / ray.Direction.Length());

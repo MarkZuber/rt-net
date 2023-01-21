@@ -59,8 +59,8 @@ namespace WkndRay
           for (int sample = 0; sample < _renderConfig.NumSamples; sample++)
           {
             var sw = Stopwatch.StartNew();
-            float u = (xfloat + RandomService.Nextfloat()) / _imageWidth;
-            float v = (yfloat + RandomService.Nextfloat()) / _imageHeight;
+            float u = (xfloat + RandomService.NextSingle()) / _imageWidth;
+            float v = (yfloat + RandomService.NextSingle()) / _imageHeight;
             var r = _camera.GetRay(u, v);
 
             color += GetRayColor(r, _world, pixelData, 0).DeNan();

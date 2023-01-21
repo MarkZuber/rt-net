@@ -74,7 +74,7 @@ namespace WkndRay
 
     public Vector3 Random(Vector3 origin)
     {
-      int index = Convert.ToInt32(MathF.Floor(RandomService.Nextfloat() * Convert.ToSingle(Count)));
+      int index = Convert.ToInt32(MathF.Floor(RandomService.NextSingle() * Convert.ToSingle(Count)));
       if (index < Count)
       {
         return this[index].Random(origin);
