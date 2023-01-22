@@ -41,24 +41,24 @@ namespace WkndRay
         return null;
       }
 
-      AABB? box = this[0].GetBoundingBox(t0, t1);
-      if (box == null)
-      {
-        return null;
-      }
 
-      for (int i = 1; i < Count; i++)
+      var tempBox = new AABB();
+      var outputBox = new AABB();
+      bool firstBox = true;
+
+      foreach (var obj in this)
       {
-        var tempBox = this[i].GetBoundingBox(t0, t1);
+        tempBox = obj.GetBoundingBox(t0, t1);
         if (tempBox == null)
         {
           return null;
         }
 
-        box = box.GetSurroundingBox(tempBox);
+        outputBox = firstBox ? tempBox : outputBox.GetSurroundingBox(tempBox);
+        firstBox = false;
       }
 
-      return box;
+      return outputBox;
     }
 
     public float GetPdfValue(Vector3 origin, Vector3 v)
@@ -74,15 +74,12 @@ namespace WkndRay
 
     public Vector3 Random(Vector3 origin)
     {
-      int index = Convert.ToInt32(MathF.Floor(RandomService.NextSingle() * Convert.ToSingle(Count)));
-      if (index < Count)
+      if (Count == 0)
       {
-        return this[index].Random(origin);
+        return new Vector3();
       }
-      else
-      {
-        return origin;
-      }
+      int index = RandomService.IntInRange(0, Count - 1);
+      return this[index].Random(origin);
     }
   }
 }

@@ -86,7 +86,7 @@ namespace WkndRay.Hitables
       return new HitRecord(hitRecord.T, new Vector3(p[0], p[1], p[2]), new Vector3(normal[0], normal[1], normal[2]), hitRecord.UvCoords, hitRecord.Material);
     }
 
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override AABB? GetBoundingBox(float t0, float t1)
     {
       return BoundingBox;
     }

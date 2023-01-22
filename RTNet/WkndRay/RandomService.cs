@@ -19,13 +19,28 @@ namespace WkndRay
       return Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
     }
 
-    public static float NextSingle()
+    private static Random GetRandom()
     {
       if (_random == null || _random.Value == null)
       {
         throw new InvalidOperationException("");
       }
-      return _random.Value.NextSingle();
+      return _random.Value;
+    }
+
+    public static float NextSingle()
+    {
+      return GetRandom().NextSingle();
+    }
+
+    public static float SingleInRange(float min, float max)
+    {
+      return min + (max - min) * NextSingle();
+    }
+
+    public static int IntInRange(int min, int max)
+    {
+      return GetRandom().Next(min, max);
     }
 
     public static Vector3 GetRandomCosineDirection()

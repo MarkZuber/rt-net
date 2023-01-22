@@ -1,5 +1,4 @@
 using System.Numerics;
-using ImGuiNET;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -30,7 +29,6 @@ namespace RTNet.ImgCore
 
       _cl = _gd.ResourceFactory.CreateCommandList();
       _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
-      Random random = new Random();
 
       _window.Resized += () =>
         {

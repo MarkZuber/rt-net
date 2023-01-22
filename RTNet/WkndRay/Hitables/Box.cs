@@ -35,7 +35,7 @@ namespace WkndRay.Hitables
       return _list.Hit(ray, tMin, tMax);
     }
 
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override AABB? GetBoundingBox(float t0, float t1)
     {
       return new AABB(PosMin, PosMax);
     }

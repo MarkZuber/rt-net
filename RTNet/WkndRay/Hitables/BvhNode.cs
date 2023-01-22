@@ -14,35 +14,40 @@ namespace WkndRay
 {
   public class BvhNode : AbstractHitable
   {
-    public void DebugPrint()
+    public void DebugPrint(int indent = 0)
     {
-      Debug.WriteLine($"Box: {Box.Min} {Box.Max}");
+      string indentStr = new String(' ', indent * 4);
+      Debug.WriteLine($"{indentStr}Box: {Box.Min} {Box.Max}");
+
+      indent = indent + 1;
+      indentStr = new String(' ', indent * 4);
 
       if (Left is BvhNode left)
       {
-        Debug.WriteLine("LEFT BOX");
-        left.DebugPrint();
+        Debug.WriteLine($"{indentStr}LEFT BOX");
+        left.DebugPrint(indent + 1);
       }
       else
       {
-        Debug.WriteLine($"Left -> {Left}");
+        Debug.WriteLine($"{indentStr}Left -> {Left}");
       }
 
       if (Right is BvhNode right)
       {
-        Debug.WriteLine("RIGHT BOX");
-        right.DebugPrint();
+        Debug.WriteLine($"{indentStr}RIGHT BOX");
+        right.DebugPrint(indent + 1);
       }
       else
       {
-        Debug.WriteLine($"Right -> {Right}");
+        Debug.WriteLine($"{indentStr}Right -> {Right}");
       }
     }
 
     public BvhNode(IEnumerable<IHitable> hitables, float time0, float time1)
     {
       List<IHitable> list = hitables.ToList();
-      int axis = Convert.ToInt32(3.0f * RandomService.NextSingle());
+      int axis = RandomService.IntInRange(0, 2);
+
       if (axis == 0)
       {
         list.Sort(new HitableXCompare());
@@ -115,7 +120,7 @@ namespace WkndRay
     }
 
     /// <inheritdoc />
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override AABB? GetBoundingBox(float t0, float t1)
     {
       return Box;
     }
@@ -148,7 +153,7 @@ namespace WkndRay
     {
       protected override int BoxCompare(AABB a, AABB b)
       {
-        return (a.Min.X - b.Min.X < 0.0f) ? -1 : 1;
+        return (a.Min.X < b.Min.X) ? -1 : 1;
       }
     }
 
@@ -156,7 +161,7 @@ namespace WkndRay
     {
       protected override int BoxCompare(AABB a, AABB b)
       {
-        return (a.Min.Y - b.Min.Y < 0.0f) ? -1 : 1;
+        return (a.Min.Y < b.Min.Y) ? -1 : 1;
       }
     }
 
@@ -164,7 +169,7 @@ namespace WkndRay
     {
       protected override int BoxCompare(AABB a, AABB b)
       {
-        return (a.Min.Z - b.Min.Z < 0.0f) ? -1 : 1;
+        return (a.Min.Z < b.Min.Z) ? -1 : 1;
       }
     }
   }

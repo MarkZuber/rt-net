@@ -71,7 +71,7 @@ namespace WkndRay.Hitables
       return null;
     }
 
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override AABB? GetBoundingBox(float t0, float t1)
     {
       var min = new Vector3(
         MathF.Min(Vertices[0].X, Vertices[1].X),

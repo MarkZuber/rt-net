@@ -95,8 +95,8 @@ namespace WkndRay.Scenes
       list.Add(new Sphere(new Vector3(-4.0f, 1.0f, 0.0f), 1.0f, new LambertianMaterial(new ColorTexture(0.4f, 0.2f, 0.1f))));
       list.Add(new Sphere(new Vector3(4.0f, 1.0f, 0.0f), 1.0f, new MetalMaterial(new Vector4(0.7f, 0.6f, 0.5f, 1.0f), 0.0f)));
 
-      // return list;
-      return new BvhNode(list, 0.0f, 1.0f);
+      return list;
+      // return new BvhNode(list, 0.0f, 1.0f);
     }
 
     /// <inheritdoc />
@@ -110,7 +110,7 @@ namespace WkndRay.Scenes
     {
       return ray =>
       {
-        return new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+        return new Vector4(0.3f, 0.3f, 0.3f, 1.0f);
         //var unitDirection = ray.Direction.ToUnitVector();
         //float t = 0.5f * (unitDirection.Y + 1.0f);
         //return ((1.0f - t) * Vector4.One) + (t * new Vector4(0.5f, 0.7f, 1.0f));
