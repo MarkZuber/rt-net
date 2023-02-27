@@ -13,52 +13,59 @@ namespace WkndRay
   public class HitableList : List<IHitable>,
                              IHitable
   {
-    public HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
-      HitRecord? hitRecord = null;
+      HitRecord tempRec = new HitRecord();
+      bool hitAnything = false;
 
       float closestSoFar = tMax;
       foreach (IHitable item in this)
       {
-        var hr = item.Hit(ray, tMin, closestSoFar);
-        if (hr == null)
+        if (!item.Hit(ray, tMin, closestSoFar, ref tempRec))
         {
           continue;
         }
+        hitAnything = true;
 
-        closestSoFar = hr.T;
-        hitRecord = hr;
+        closestSoFar = tempRec.T;
+        hr = tempRec;
       }
 
-      return hitRecord;
+      return hitAnything;
     }
 
     /// <inheritdoc />
-    public AABB? GetBoundingBox(float t0, float t1)
+    public bool BoundingBox(float t0, float t1, out AABB box)
     {
       if (Count < 1)
       {
-        return null;
+        box = new AABB();
+        return false;
       }
 
 
-      var tempBox = new AABB();
-      var outputBox = new AABB();
-      bool firstBox = true;
-
-      foreach (var obj in this)
+      bool firstTrue = this[0].BoundingBox(t0, t1, out AABB tempBox);
+      if (!firstTrue)
       {
-        tempBox = obj.GetBoundingBox(t0, t1);
-        if (tempBox == null)
-        {
-          return null;
-        }
-
-        outputBox = firstBox ? tempBox : outputBox.GetSurroundingBox(tempBox);
-        firstBox = false;
+        box = new AABB();
+        return false;
       }
 
-      return outputBox;
+      box = tempBox;
+
+      for (var i = 1; i < this.Count; i++)
+      {
+        if (this[i].BoundingBox(t0, t1, out tempBox))
+        {
+          box = box.SurroundingBox(tempBox);
+        }
+        else
+        {
+          return false;
+        }
+      }
+
+      return true;
     }
 
     public float GetPdfValue(Vector3 origin, Vector3 v)

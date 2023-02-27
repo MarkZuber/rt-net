@@ -16,33 +16,33 @@ namespace WkndRay.Hitables
     public IHitable Hitable { get; }
     public Vector3 Displacement { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
       var movedRay = new Ray(ray.Origin - Displacement, ray.Direction);
-      var hitRecord = Hitable.Hit(movedRay, tMin, tMax);
-      if (hitRecord == null)
+      var hitRecord = new HitRecord();
+      if (!Hitable.Hit(movedRay, tMin, tMax, ref hitRecord))
       {
-        return null;
+        return false;
       }
 
-      return new HitRecord(
-        hitRecord.T,
-        hitRecord.P + Displacement,
-        hitRecord.Normal,
-        hitRecord.UvCoords,
-        hitRecord.Material);
+      hr.T = hitRecord.T;
+      hr.P = hitRecord.P + Displacement;
+      hr.Normal = hitRecord.Normal;
+      hr.UvCoords = hitRecord.UvCoords;
+      hr.Material = hitRecord.Material;
+
+      return true;
     }
 
-    public override AABB? GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      var box = Hitable.GetBoundingBox(t0, t1);
-      if (box == null)
+      if (!Hitable.BoundingBox(t0, t1, out box))
       {
-        return null;
+        return false;
       }
 
       box = new AABB(box.Min + Displacement, box.Max + Displacement);
-      return box;
+      return true;
 
     }
   }

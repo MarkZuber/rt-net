@@ -70,8 +70,8 @@ namespace WkndRay.Executors
     private Vector4 GetRayColor(Ray ray, IHitable world)
     {
       // the 0.001 corrects for the "shadow acne"
-      HitRecord? hr = world.Hit(ray, 0.001f, float.MaxValue);
-      if (hr != null)
+      HitRecord hr = new HitRecord();
+      if (world.Hit(ray, 0.001f, float.MaxValue, ref hr))
       {
         var target = hr.P + hr.Normal + Vector3Extensions.GetRandomInUnitSphere();
         return 0.5f * GetRayColor(new Ray(hr.P, target - hr.P), world);

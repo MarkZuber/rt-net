@@ -31,7 +31,7 @@ namespace WkndRay.Hitables
     public Vector3 SurfaceNormal { get; }
     public IMaterial Material { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
       var e1 = Vertices[1] - Vertices[0];
       var e2 = Vertices[2] - Vertices[0];
@@ -42,7 +42,7 @@ namespace WkndRay.Hitables
 
       if (det > -0.0001 && det < 0.0001)
       {
-        return null;
+        return false;
       }
 
       var invDet = 1.0f / det;
@@ -51,7 +51,7 @@ namespace WkndRay.Hitables
 
       if (u < 0.0f || u > 1.0f)
       {
-        return null;
+        return false;
       }
 
       var qvec = Vector3.Cross(tvec, e1);
@@ -59,19 +59,20 @@ namespace WkndRay.Hitables
 
       if (v < 0.0f || (u + v) > 1.0f)
       {
-        return null;
+        return false;
       }
 
       var t = Vector3.Dot(e2, qvec) * invDet;
       if (t > 0.00001 && t < tMax && t > tMin)
       {
-        return new HitRecord(t, ray.GetPointAtParameter(t), SurfaceNormal, new Vector2(u, v), Material);
+        hr = new HitRecord(t, ray.GetPointAtParameter(t), SurfaceNormal, new Vector2(u, v), Material);
+        return true;
       }
 
-      return null;
+      return false;
     }
 
-    public override AABB? GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
       var min = new Vector3(
         MathF.Min(Vertices[0].X, Vertices[1].X),
@@ -91,7 +92,8 @@ namespace WkndRay.Hitables
         MathF.Max(max.Y, Vertices[2].Y),
         MathF.Max(max.Z, Vertices[2].Z));
 
-      return new AABB(min, max);
+      box = new AABB(min, max);
+      return true;
     }
   }
 }

@@ -64,7 +64,7 @@ namespace WkndRay
       return true;
     }
 
-    public AABB GetSurroundingBox(AABB other)
+    public AABB SurroundingBox(AABB other)
     {
       var small = new Vector3(
         MathF.Min(Min.X, other.Min.X),

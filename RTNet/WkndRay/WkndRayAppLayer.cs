@@ -25,10 +25,10 @@ namespace WkndRay
     private CancellationTokenSource _rendererCancellationTokenSource = new CancellationTokenSource();
     private IScene _scene;
     private PixelBuffer? _pixelBuffer;
-    private int _desiredImageWidth = 600;
-    private int _desiredImageHeight = 600;
-    private int _desiredRayDepth = 50;
-    private int _desiredSamples = 50;
+    private int _desiredImageWidth = 1000;
+    private int _desiredImageHeight = 1000;
+    private int _desiredRayDepth = 10;
+    private int _desiredSamples = 20;
     private bool _desiredTwoPhase = true;
     private RenderingState _renderingState = RenderingState.Stopped;
     private Task _renderTask = Task.CompletedTask;

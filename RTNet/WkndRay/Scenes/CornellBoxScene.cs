@@ -70,7 +70,8 @@ namespace WkndRay.Scenes
                 _glassSphere,
             };
 
-      return new BvhNode(list, 0.0f, 1.0f);
+      return list;
+      // return new BvhNode(list, 0.0f, 1.0f);
     }
 
     /// <inheritdoc />

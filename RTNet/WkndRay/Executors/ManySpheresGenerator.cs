@@ -124,7 +124,8 @@ namespace WkndRay.Executors
       list.Add(new Sphere(new Vector3(-4.0f, 1.0f, 0.0f), 1.0f, new LambertianMaterial(new ColorTexture(0.4f, 0.2f, 0.1f))));
       list.Add(new Sphere(new Vector3(4.0f, 1.0f, 0.0f), 1.0f, new MetalMaterial(new Vector4(0.7f, 0.6f, 0.5f, 1.0f), 0.0f)));
 
-      return list;
+      // return list;
+      return new BvhNode(list, 0.0f, 1.0f);
     }
 
     private float GetRandom()
@@ -135,8 +136,8 @@ namespace WkndRay.Executors
     private Vector4 GetRayColor(Ray ray, IHitable world, int depth)
     {
       // the 0.001 corrects for the "shadow acne"
-      HitRecord? hr = world.Hit(ray, 0.001f, float.MaxValue);
-      if (hr != null)
+      HitRecord hr = new HitRecord();
+      if (world.Hit(ray, 0.001f, float.MaxValue, ref hr))
       {
         if (depth < 50 && hr.Material != null)
         {

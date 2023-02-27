@@ -90,8 +90,8 @@ namespace WkndRay
     {
       pixelData.SetDepth(depth);
       // the 0.001 corrects for the "shadow acne"
-      HitRecord? hr = world.Hit(ray, 0.001f, float.MaxValue);
-      if (hr != null && hr.Material != null)
+      HitRecord? hr = new HitRecord();
+      if (world.Hit(ray, 0.001f, float.MaxValue, ref hr) && hr.Material != null)
       {
         var emitted = hr.Material.Emitted(ray, hr, hr.UvCoords, hr.P);
 
@@ -115,7 +115,7 @@ namespace WkndRay
               if (scatteringPdf < 0.01f)
               {
                 scatteringPdf = 0.01f;
-                //    //pdfValue = 1.0f;
+                // pdfValue = 1.0f;
               }
 
               {

@@ -10,8 +10,8 @@ namespace WkndRay
 {
   public interface IHitable
   {
-    HitRecord? Hit(Ray ray, float tMin, float tMax);
-    AABB? GetBoundingBox(float t0, float t1);
+    bool Hit(Ray ray, float tMin, float tMax, ref HitRecord rec);
+    bool BoundingBox(float t0, float t1, out AABB box);
 
     float GetPdfValue(Vector3 origin, Vector3 v);
     Vector3 Random(Vector3 origin);

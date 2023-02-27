@@ -25,18 +25,18 @@ namespace WkndRay.Hitables
     public float Density { get; }
     public IMaterial PhaseFunction { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
-      HitRecord? hitRecord1 = Boundary.Hit(ray, -float.MaxValue, float.MaxValue);
-      if (hitRecord1 == null)
+      HitRecord hitRecord1 = new HitRecord();
+      if (!Boundary.Hit(ray, -float.MaxValue, float.MaxValue, ref hitRecord1))
       {
-        return null;
+        return false;
       }
 
-      HitRecord? hitRecord2 = Boundary.Hit(ray, hitRecord1.T + 0.0001f, float.MaxValue);
-      if (hitRecord2 == null)
+      HitRecord? hitRecord2 = new HitRecord();
+      if (!Boundary.Hit(ray, hitRecord1.T + 0.0001f, float.MaxValue, ref hitRecord2))
       {
-        return null;
+        return false;
       }
 
       float rec1T = hitRecord1.T;
@@ -54,7 +54,7 @@ namespace WkndRay.Hitables
 
       if (rec1T >= rec2T)
       {
-        return null;
+        return false;
       }
 
       if (rec1T < 0.0f)
@@ -68,20 +68,21 @@ namespace WkndRay.Hitables
       {
         float recT = rec1T + (hitDistance / ray.Direction.Length());
 
-        return new HitRecord(
-          recT,
-          ray.GetPointAtParameter(recT),
-          Vector3.UnitX,  // arbitrary
-          new Vector2(0.0f, 0.0f), // don't need u/v since PhaseFunction is a calculation
-          PhaseFunction);
+        hr.T = recT;
+        hr.P = ray.GetPointAtParameter(recT);
+        hr.Normal = Vector3.UnitX;
+        hr.UvCoords = new Vector2(0.0f, 0.0f); // don't need u/v since PhaseFunction is a calculation
+        hr.Material = PhaseFunction;
+
+        return true;
       }
 
-      return null;
+      return false;
     }
 
-    public override AABB? GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      return Boundary.GetBoundingBox(t0, t1);
+      return Boundary.BoundingBox(t0, t1, out box);
     }
   }
 }

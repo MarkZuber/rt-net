@@ -29,32 +29,54 @@ namespace WkndRay.Hitables
     public float K { get; }
     public IMaterial Material { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
       float t = (K - ray.Origin.Z) / ray.Direction.Z;
       if (t < tMin || t > tMax)
       {
-        return null;
+        return false;
       }
 
       float x = ray.Origin.X + (t * ray.Direction.X);
       float y = ray.Origin.Y + (t * ray.Direction.Y);
       if (x < X0 || x > X1 || y < Y0 || y > Y1)
       {
-        return null;
+        return false;
       }
 
-      return new HitRecord(
-        t,
-        ray.GetPointAtParameter(t),
-        Vector3.UnitZ,
-        new Vector2((x - X0) / (X1 - X0), (y - Y0) / (Y1 - Y0)),
-        Material);
+      hr.T = t;
+      hr.P = ray.GetPointAtParameter(t);
+      hr.Normal = Vector3.UnitZ;
+      hr.UvCoords = new Vector2((x - X0) / (X1 - X0), (y - Y0) / (Y1 - Y0));
+      hr.Material = Material;
+
+      return true;
     }
 
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      return new AABB(new Vector3(X0, Y0, K - 0.001f), new Vector3(X1, Y1, K + 0.0001f));
+      box = new AABB(new Vector3(X0, Y0, K - 0.001f), new Vector3(X1, Y1, K + 0.0001f));
+      return true;
     }
+
+    // public override float GetPdfValue(Vector3 origin, Vector3 v)
+    // {
+    //   HitRecord hr = new HitRecord();
+    //   if (!Hit(new Ray(origin, v), 0.001f, float.MaxValue, ref hr))
+    //   {
+    //     return 0.0f;
+    //   }
+
+    //   float area = (X1 - X0) * (Y1 - Y0);
+    //   float distanceSquared = hr.T * hr.T * v.LengthSquared();
+    //   float cosine = MathF.Abs(Vector3.Dot(v, hr.Normal) / v.Length());
+    //   return distanceSquared / (cosine * area);
+    // }
+
+    // public override Vector3 Random(Vector3 origin)
+    // {
+    //   var randomPoint = new Vector3(X0 + (RandomService.NextSingle() * (X1 - X0)), K, Y0 + (RandomService.NextSingle() * (Y1 - Y0)));
+    //   return randomPoint - origin;
+    // }
   }
 }

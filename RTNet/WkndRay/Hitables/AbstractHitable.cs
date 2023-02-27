@@ -10,9 +10,9 @@ namespace WkndRay.Hitables
 {
   public abstract class AbstractHitable : IHitable
   {
-    public abstract HitRecord? Hit(Ray ray, float tMin, float tMax);
+    public abstract bool Hit(Ray ray, float tMin, float tMax, ref HitRecord rec);
 
-    public abstract AABB? GetBoundingBox(float t0, float t1);
+    public abstract bool BoundingBox(float t0, float t1, out AABB box);
 
     public virtual float GetPdfValue(Vector3 origin, Vector3 v)
     {

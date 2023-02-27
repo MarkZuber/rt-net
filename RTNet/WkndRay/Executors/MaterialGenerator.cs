@@ -75,8 +75,8 @@ namespace WkndRay.Executors
     private Vector4 GetRayColor(Ray ray, IHitable world, int depth)
     {
       // the 0.001 corrects for the "shadow acne"
-      HitRecord? hr = world.Hit(ray, 0.001f, float.MaxValue);
-      if (hr != null)
+      HitRecord hr = new HitRecord();
+      if (world.Hit(ray, 0.001f, float.MaxValue, ref hr))
       {
         if (depth < 50 && hr.Material != null)
         {

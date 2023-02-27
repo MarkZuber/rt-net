@@ -24,7 +24,7 @@ namespace WkndRay
     public float Radius { get; }
     public IMaterial? Material { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
       var oc = ray.Origin - Center;
       float a = Vector3.Dot(ray.Direction, ray.Direction);
@@ -36,30 +36,37 @@ namespace WkndRay
         float temp = (-b - MathF.Sqrt((b * b) - (a * c))) / a;
         if (temp < tMax & temp > tMin)
         {
-          var p = ray.GetPointAtParameter(temp);
-          return new HitRecord(temp, p, (p - Center) / Radius, GetSphereUv(p), Material);
+          hr.T = temp;
+          hr.P = ray.GetPointAtParameter(temp);
+          hr.Normal = (hr.P - Center) / Radius;
+          hr.Material = Material;
+          return true;
         }
 
         temp = (-b + MathF.Sqrt((b * b) - (a * c))) / a;
         if (temp < tMax && temp > tMin)
         {
-          var p = ray.GetPointAtParameter(temp);
-          return new HitRecord(temp, p, (p - Center) / Radius, GetSphereUv(p), Material);
+          hr.T = temp;
+          hr.P = ray.GetPointAtParameter(temp);
+          hr.Normal = (hr.P - Center) / Radius;
+          hr.Material = Material;
+          return true;
         }
       }
 
-      return null;
+      return false;
     }
 
-    public override AABB? GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      return new AABB(Center - new Vector3(Radius, Radius, Radius), Center + new Vector3(Radius, Radius, Radius));
+      box = new AABB(Center - new Vector3(Radius, Radius, Radius), Center + new Vector3(Radius, Radius, Radius));
+      return true;
     }
 
     public override float GetPdfValue(Vector3 origin, Vector3 v)
     {
-      HitRecord? hr = Hit(new Ray(origin, v), 0.001f, float.MaxValue);
-      if (hr == null)
+      HitRecord hr = new HitRecord();
+      if (!Hit(new Ray(origin, v), 0.001f, float.MaxValue, ref hr))
       {
         return 0.0f;
       }

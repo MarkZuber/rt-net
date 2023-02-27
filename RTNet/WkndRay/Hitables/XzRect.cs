@@ -29,38 +29,39 @@ namespace WkndRay.Hitables
     public float K { get; }
     public IMaterial Material { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
       float t = (K - ray.Origin.Y) / ray.Direction.Y;
       if (t < tMin || t > tMax)
       {
-        return null;
+        return false;
       }
 
       float x = ray.Origin.X + (t * ray.Direction.X);
       float z = ray.Origin.Z + (t * ray.Direction.Z);
       if (x < X0 || x > X1 || z < Z0 || z > Z1)
       {
-        return null;
+        return false;
       }
 
-      return new HitRecord(
-        t,
-        ray.GetPointAtParameter(t),
-        Vector3.UnitY,
-        new Vector2((x - X0) / (X1 - X0), (z - Z0) / (Z1 - Z0)),
-        Material);
+      hr.T = t;
+      hr.P = ray.GetPointAtParameter(t);
+      hr.Normal = Vector3.UnitY;
+      hr.UvCoords = new Vector2((x - X0) / (X1 - X0), (z - Z0) / (Z1 - Z0));
+      hr.Material = Material;
+      return true;
     }
 
-    public override AABB GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      return new AABB(new Vector3(X0, K - 0.001f, Z0), new Vector3(X1, K + 0.0001f, Z1));
+      box = new AABB(new Vector3(X0, K - 0.001f, Z0), new Vector3(X1, K + 0.0001f, Z1));
+      return true;
     }
 
     public override float GetPdfValue(Vector3 origin, Vector3 v)
     {
-      HitRecord? hr = Hit(new Ray(origin, v), 0.001f, float.MaxValue);
-      if (hr == null)
+      HitRecord hr = new HitRecord();
+      if (!Hit(new Ray(origin, v), 0.001f, float.MaxValue, ref hr))
       {
         return 0.0f;
       }

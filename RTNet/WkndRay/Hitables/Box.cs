@@ -30,14 +30,15 @@ namespace WkndRay.Hitables
     public Vector3 PosMin { get; }
     public Vector3 PosMax { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord hr)
     {
-      return _list.Hit(ray, tMin, tMax);
+      return _list.Hit(ray, tMin, tMax, ref hr);
     }
 
-    public override AABB? GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      return new AABB(PosMin, PosMax);
+      box = new AABB(PosMin, PosMax);
+      return true;
     }
   }
 }

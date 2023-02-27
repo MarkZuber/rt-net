@@ -43,134 +43,134 @@ namespace WkndRay
       }
     }
 
-    public BvhNode(IEnumerable<IHitable> hitables, float time0, float time1)
+    public BvhNode(List<IHitable> hitables, float time0, float time1)
     {
-      List<IHitable> list = hitables.ToList();
       int axis = RandomService.IntInRange(0, 2);
 
-      if (axis == 0)
+      switch (axis)
       {
-        list.Sort(new HitableXCompare());
-      }
-      else if (axis == 1)
-      {
-        list.Sort(new HitableYCompare());
-      }
-      else
-      {
-        list.Sort(new HitableZCompare());
-      }
-
-      if (list.Count == 1)
-      {
-        Left = list[0];
-        Right = list[0];
-      }
-      else if (list.Count == 2)
-      {
-        Left = list[0];
-        Right = list[1];
-      }
-      else
-      {
-        Left = new BvhNode(list.Take(list.Count / 2), time0, time1);
-        Right = new BvhNode(list.Skip(list.Count / 2), time0, time1);
+        case 0:
+          // sort x
+          hitables.Sort(BvhNode.BoxXCompare);
+          break;
+        case 1:
+          // sort y
+          hitables.Sort(BvhNode.BoxYCompare);
+          break;
+        default:
+          // sprt z
+          hitables.Sort(BvhNode.BoxZCompare);
+          break;
       }
 
-      var boxLeft = Left.GetBoundingBox(time0, time1);
-      var boxRight = Right.GetBoundingBox(time0, time1);
-
-      if (boxLeft == null || boxRight == null)
+      switch (hitables.Count)
       {
-        throw new InvalidOperationException("no bounding box");
+        case 1:
+          Left = Right = hitables[0];
+          break;
+        case 2:
+          Left = hitables[0];
+          Right = hitables[1];
+          break;
+        default:
+          Left = new BvhNode(hitables.Take(hitables.Count / 2).ToList(), time0, time1);
+          Right = new BvhNode(hitables.Skip(hitables.Count / 2).ToList(), time0, time1);
+          break;
       }
 
-      Box = boxLeft.GetSurroundingBox(boxRight);
+      if (!Left.BoundingBox(time0, time1, out AABB boxLeft) ||
+          !Right.BoundingBox(time0, time1, out AABB boxRight))
+      {
+        throw new Exception("No bounding box in BVHNode");
+      }
 
-      DebugPrint();
+      Box = boxRight.SurroundingBox(boxLeft);
     }
 
     public IHitable Left { get; }
     public IHitable Right { get; }
     public AABB Box { get; }
 
-    public override HitRecord? Hit(Ray ray, float tMin, float tMax)
+    public override bool Hit(Ray ray, float tMin, float tMax, ref HitRecord rec)
     {
-      if (!Box.Hit(ray, tMin, tMax))
+      if (Box.Hit(ray, tMin, tMax))
       {
-        return null;
-      }
+        HitRecord leftRecord = new HitRecord();
+        HitRecord rightRecord = new HitRecord();
 
-      HitRecord? hrLeft = Left.Hit(ray, tMin, tMax);
-      HitRecord? hrRight = Right.Hit(ray, tMin, hrLeft != null ? hrLeft.T : tMax);
-      if (hrLeft != null && hrRight != null)
-      {
-        return (hrLeft.T < hrRight.T) ? hrLeft : hrRight;
-      }
-      else if (hrLeft != null)
-      {
-        return hrLeft;
-      }
-      else if (hrRight != null)
-      {
-        return hrRight;
-      }
+        bool hitLeft = Left.Hit(ray, tMin, tMax, ref leftRecord);
+        bool hitRight = Right.Hit(ray, tMin, tMax, ref rightRecord);
+        if (hitLeft && hitRight)
+        {
+          rec = leftRecord.T < rightRecord.T ? leftRecord : rightRecord;
+          return true;
+        }
 
-      return null;
+        if (hitLeft)
+        {
+          rec = leftRecord;
+          return true;
+        }
+
+        if (hitRight)
+        {
+          rec = rightRecord;
+          return true;
+        }
+      }
+      return false;
     }
 
     /// <inheritdoc />
-    public override AABB? GetBoundingBox(float t0, float t1)
+    public override bool BoundingBox(float t0, float t1, out AABB box)
     {
-      return Box;
+      box = Box;
+      return true;
     }
 
-    private abstract class HitableBoxCompare : IComparer<IHitable>
+    private static int BoxXCompare(IHitable a, IHitable b)
     {
-      public int Compare(IHitable? x, IHitable? y)
+      if (!a.BoundingBox(0, 0, out AABB boxLeft) || !b.BoundingBox(0, 0, out AABB boxRight))
       {
-        if (x == null || y == null)
-        {
-          throw new ArgumentNullException();
-        }
-
-        // we ignore time ranges with the comparators
-        var xbb = x.GetBoundingBox(0.0f, 0.0f);
-        var ybb = y.GetBoundingBox(0.0f, 0.0f);
-
-        if (xbb == null || ybb == null)
-        {
-          throw new InvalidOperationException("no bounding box");
-        }
-
-        return BoxCompare(xbb, ybb);
+        throw new Exception("No bounding box in BVHNode");
       }
 
-      protected abstract int BoxCompare(AABB a, AABB b);
+      if (boxLeft.Min.X - boxRight.Min.X < 0)
+      {
+        return -1;
+      }
+
+      return 1;
     }
 
-    private class HitableXCompare : HitableBoxCompare
+    private static int BoxYCompare(IHitable a, IHitable b)
     {
-      protected override int BoxCompare(AABB a, AABB b)
+      if (!a.BoundingBox(0, 0, out AABB boxLeft) || !b.BoundingBox(0, 0, out AABB boxRight))
       {
-        return (a.Min.X < b.Min.X) ? -1 : 1;
+        throw new Exception("No bounding box in BVHNode");
       }
+
+      if (boxLeft.Min.Y - boxRight.Min.Y < 0)
+      {
+        return -1;
+      }
+
+      return 1;
     }
 
-    private class HitableYCompare : HitableBoxCompare
+    private static int BoxZCompare(IHitable a, IHitable b)
     {
-      protected override int BoxCompare(AABB a, AABB b)
+      if (!a.BoundingBox(0, 0, out AABB boxLeft) || !b.BoundingBox(0, 0, out AABB boxRight))
       {
-        return (a.Min.Y < b.Min.Y) ? -1 : 1;
+        throw new Exception("No bounding box in BVHNode");
       }
-    }
 
-    private class HitableZCompare : HitableBoxCompare
-    {
-      protected override int BoxCompare(AABB a, AABB b)
+      if (boxLeft.Min.Z - boxRight.Min.Z < 0)
       {
-        return (a.Min.Z < b.Min.Z) ? -1 : 1;
+        return -1;
       }
+
+      return 1;
     }
   }
 }
