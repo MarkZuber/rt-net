@@ -6,7 +6,7 @@
 
 using System;
 using System.Numerics;
-using RTNet.ImgCore;
+using Zube.ImGuiNet;
 using WkndRay.Hitables;
 using WkndRay.Materials;
 using WkndRay.Textures;

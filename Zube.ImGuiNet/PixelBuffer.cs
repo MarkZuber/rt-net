@@ -1,10 +1,15 @@
+// -----------------------------------------------------------------------
+// <copyright file="ImageTexture.cs" company="ZubeNET">
+//   Copyright...
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Numerics;
-using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   public class PixelBuffer : IPixelBuffer
   {

@@ -1,6 +1,12 @@
+// -----------------------------------------------------------------------
+// <copyright file="ImageTexture.cs" company="ZubeNET">
+//   Copyright...
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Numerics;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   public static class Vector4Extensions
   {

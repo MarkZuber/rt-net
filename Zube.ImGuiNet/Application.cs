@@ -1,9 +1,15 @@
+// -----------------------------------------------------------------------
+// <copyright file="ImageTexture.cs" company="ZubeNET">
+//   Copyright...
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Numerics;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   public class Application
   {

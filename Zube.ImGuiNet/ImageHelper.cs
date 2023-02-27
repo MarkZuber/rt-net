@@ -1,7 +1,13 @@
+// -----------------------------------------------------------------------
+// <copyright file="ImageTexture.cs" company="ZubeNET">
+//   Copyright...
+// </copyright>
+// -----------------------------------------------------------------------
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   public static class ImageHelper
   {

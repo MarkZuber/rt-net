@@ -1,15 +1,15 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IExecutor.cs" company="ZubeNET">
+// <copyright file="ImageTexture.cs" company="ZubeNET">
 //   Copyright...
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Zube.ImGuiNet;
+using System.Numerics;
 
-namespace WkndRay.Executors
+namespace Zube.ImGuiNet
 {
-  public interface IExecutor
+  public interface ITexture
   {
-    PixelBuffer Execute(uint width, uint height);
+    Vector4 GetValue(Vector2 uvCoords, Vector3 p);
   }
 }

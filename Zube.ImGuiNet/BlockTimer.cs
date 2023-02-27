@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   public class BlockTimer : IDisposable
   {

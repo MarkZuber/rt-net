@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="ImageTexture.cs" company="ZubeNET">
+//   Copyright...
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -7,7 +13,7 @@ using Veldrid;
 using System.Runtime.CompilerServices;
 using ImGuiNET;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   /// <summary>
   /// A modified version of Veldrid.ImGui's ImGuiRenderer.

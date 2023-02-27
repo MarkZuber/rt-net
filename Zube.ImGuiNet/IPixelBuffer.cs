@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace RTNet.ImgCore
+namespace Zube.ImGuiNet
 {
   public interface IPixelBuffer : IDisposable
   {

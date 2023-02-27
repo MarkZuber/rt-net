@@ -6,9 +6,8 @@
 
 using System;
 using System.Numerics;
-using RTNet.ImgCore;
 
-namespace WkndRay.Textures
+namespace Zube.ImGuiNet
 {
   public class ImageTexture : ITexture
   {

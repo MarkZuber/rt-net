@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTNet", "RTNet\RTNet.csproj", "{68E6AB2C-5573-4BC5-A3FC-06EBAA185041}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zube.ImGuiNet", "Zube.ImGuiNet\Zube.ImGuiNet.csproj", "{4359BE40-AFE5-49E4-8118-396D4A517E53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{68E6AB2C-5573-4BC5-A3FC-06EBAA185041}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68E6AB2C-5573-4BC5-A3FC-06EBAA185041}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68E6AB2C-5573-4BC5-A3FC-06EBAA185041}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4359BE40-AFE5-49E4-8118-396D4A517E53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4359BE40-AFE5-49E4-8118-396D4A517E53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4359BE40-AFE5-49E4-8118-396D4A517E53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4359BE40-AFE5-49E4-8118-396D4A517E53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
